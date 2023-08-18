@@ -32,7 +32,21 @@ class VideoDetail {
   final num tId;
   final num cId;
   final String title;
-  final num pubDate;
+  final DateTime pubDate;
+
+  static fromJson(Map<String, dynamic> raw) {
+    return VideoDetail(
+      bvId: raw['bvid'],
+      desc: raw['desc'],
+      videos: raw['videos'],
+      aId: raw['aid'],
+      tId: raw['tid'],
+      cId: raw['cid'],
+      title: raw['title'],
+      pubDate: DateTime.fromMillisecondsSinceEpoch(raw['pubdate'] * 100 as int)
+          .toLocal(),
+    );
+  }
 
   VideoDetail(
       {required this.bvId,

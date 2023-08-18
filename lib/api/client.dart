@@ -151,6 +151,15 @@ class BClient {
             _handleDataAsList(data, keyName: HostInfo.listKeyItem)));
   }
 
+  /// 获取视频详情
+  static Future<VideoDetail> getVideoDetail(String bvId) {
+    return _dio
+        .get(ApiVideo.getDetail.api, queryParameters: {"bvid": bvId})
+        .then((value) => _handleJsonResponse(value))
+        .then((value) => VideoDetail.fromJson(value));
+  }
+
+  /// 以下是内部方法
   /// 判断是否有业务错误， 返回data
   static Future<dynamic> _handleJsonResponse(Response<dynamic> response) async {
     if (response.statusCode != HttpStatus.ok) {

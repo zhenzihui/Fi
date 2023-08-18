@@ -91,7 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
           // in the middle of the parent.
           child: Column(
         children: [
-          TestVideoList()
+          // LoginCard()
+          // TestVideoList()
+          // TestApi(future: BClient.getVideoDetail("BV118411R7id"))
 
         ],
       )), // This trailing comma makes auto-formatting nicer for build methods.

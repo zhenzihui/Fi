@@ -46,6 +46,21 @@ enum ApiHome {
   final String desc;
 }
 
+enum ApiVideo{
+
+  /// test: BV16X4y1x7q6
+  getDetail(
+    api: "${HostInfo.api}/x/web-interface/view",
+    desc: "视频详细信息"
+  ),;
+
+
+  const ApiVideo({required this.api, required this.desc});
+
+  final String api;
+  final String desc;
+}
+
 /// 流接口
 // enum ApiStream {
 //   getRecommendedVideos(
