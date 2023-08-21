@@ -1,7 +1,13 @@
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:fi/api/api_list.dart';
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/base.dart';
 import 'package:fi/api/model/response/home.dart';
+import 'package:fi/api/model/response/video.dart';
+import 'package:fi/component/video/player.dart';
+import 'package:fi/component/video/video.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:video_player/video_player.dart';
 
 class TestVideoList extends StatelessWidget {
   @override
@@ -9,16 +15,16 @@ class TestVideoList extends StatelessWidget {
     return FutureBuilder(
         future: BClient.getRecommendedVideos(),
         builder: (context, snapshot) {
-      String res = "";
-      if(snapshot.hasData) {
-        res = "${snapshot.data?.length ?? 0}";
-      }
-      if(snapshot.hasError) {
-        res = snapshot.error.toString();
-      }
+          String res = "";
+          if (snapshot.hasData) {
+            res = "${snapshot.data?.length ?? 0}";
+          }
+          if (snapshot.hasError) {
+            res = snapshot.error.toString();
+          }
 
-      return Center(child: Text(res));
-    });
+          return Center(child: Text(res));
+        });
   }
 
 }
@@ -34,16 +40,22 @@ class TestApi extends StatelessWidget {
     return FutureBuilder(
         future: future,
         builder: (context, snapshot) {
-          String res ="";
-          if(snapshot.hasData) {
-            final detail = snapshot.data as VideoDetail;
-            res = detail.title;
+          String res = "";
+
+
+          if (snapshot.hasData) {
+            final urlInfo = snapshot.data as VideoPlayUrl;
+            return BVideoPlayer(playUrl: urlInfo,);
+
+            // final detail = snapshot.data as VideoDetail;
+            // res = detail.title;
           } else {
             res = snapshot.error.toString();
+            debugPrint(res);
+
           }
           return Text(res);
         });
-
   }
 
 }

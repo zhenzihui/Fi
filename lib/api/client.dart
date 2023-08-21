@@ -5,11 +5,12 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:fi/api/api_list.dart';
-import 'package:fi/api/model/request/base.dart';
 import 'package:fi/api/model/request/login.dart';
+import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/base.dart';
 import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/login.dart';
+import 'package:fi/api/model/response/video.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -105,8 +106,35 @@ class LoggerInterceptor extends InterceptorsWrapper {
 class RequestInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers.addAll({"Referer": "https://www.bilibili.com/"});
+    final clientHeader = {
+      'Referer': 'https://www.bilibili.com/',
+      'user-agent':
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
+    };
+
+    options.headers.addAll(clientHeader);
+    final headerValues = options.headers['cookie'];
+    debugPrint(headerValues.toString());
+    BClient.globalCookie = {'cookie': headerValues.toString()}
+      ..addAll(clientHeader);
+
     handler.next(options);
+  }
+
+  @override
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
+    response.headers.map.forEach((key, value) {
+      if (key == "set-cookie") {
+        BClient.globalCookie = value
+            .reduce((p, n) => p + n)
+            .split(";")
+            .where((e) => e.contains("="))
+            .map((pair) => {pair.split("=")[0]: pair.split("=")[1]})
+            .reduce((p, n) => p..addAll(n));
+      }
+    });
+    // BClient.globalCookie ??= response.headers as Map<String, String>;
+    handler.next(response);
   }
 }
 
@@ -116,6 +144,8 @@ class BClient {
     LoggerInterceptor(false),
     RequestInterceptor(),
   ];
+
+  static Map<String, String>? globalCookie;
 
   static Future<void> init() async {
     final cookieInterceptor = await getApplicationSupportDirectory();
@@ -159,6 +189,14 @@ class BClient {
         .then((value) => VideoDetail.fromJson(value));
   }
 
+  /// 获取视频播放地址
+  static Future<VideoPlayUrl> getVideoPlayUrl(GetVideoPlayUrlReq req) {
+    return _dio
+        .get(ApiVideo.getPlayUrl.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) => VideoPlayUrl.fromJson(value));
+  }
+
   /// 以下是内部方法
   /// 判断是否有业务错误， 返回data
   static Future<dynamic> _handleJsonResponse(Response<dynamic> response) async {
@@ -171,6 +209,12 @@ class BClient {
       return Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
           orElse: () => BizCode.unknown));
     }
+    // if (globalCookie == null) {
+    //   final cookies = await CookieJar().loadForRequest(Uri.parse(HostInfo.passport));
+    //   globalCookie = cookies.map((e) => {e.name: e.value})
+    //           .reduce((p, n) => p..addAll(n));
+    // }
+
     return biz.data;
   }
 

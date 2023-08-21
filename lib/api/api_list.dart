@@ -52,7 +52,13 @@ enum ApiVideo{
   getDetail(
     api: "${HostInfo.api}/x/web-interface/view",
     desc: "视频详细信息"
-  ),;
+  ),
+  getPlayUrl(
+    api: "${HostInfo.api}/x/player/playurl",
+    desc: "获取播放地址"
+  )
+
+  ;
 
 
   const ApiVideo({required this.api, required this.desc});
