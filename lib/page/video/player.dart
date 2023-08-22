@@ -2,20 +2,40 @@ import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/home.dart';
 import 'package:fi/component/video/player.dart';
+import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class VideoPlayerPage extends StatelessWidget {
+class VideoPlayerPage extends StatefulWidget {
   final BaseVideo data;
 
   const VideoPlayerPage({super.key, required this.data});
+
+  @override
+  State<VideoPlayerPage> createState() => _VideoPlayerPageState();
+}
+
+class _VideoPlayerPageState extends State<VideoPlayerPage> {
+
+  @override
+  void initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky, overlays: []);
+    super.initState();
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
+
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
         future: BClient.getVideoPlayUrl(
-            GetVideoPlayUrlReq(cId: data.cId.toString(), bvId: data.bvId)),
+            GetVideoPlayUrlReq(cId: widget.data.cId.toString(), bvId: widget.data.bvId)),
 
         builder: (context, snap) {
           if(snap.connectionState != ConnectionState.done || !snap.hasData) {
@@ -25,12 +45,7 @@ class VideoPlayerPage extends StatelessWidget {
           }
 
           return Center(
-            child: Column(
-              children: [
-                BVideoPlayer(playUrl: snap.data!),
-                Text(data.title)
-              ],
-            ),
+            child: BVideoPlayer(playUrl: snap.data!),
           );
 
         },

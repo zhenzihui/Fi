@@ -43,7 +43,7 @@ class _VideoListState extends State<VideoList> {
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context)!;
 
-    final maxExtend = SU.isLandscape ? 4 : 3;
+    final maxExtend = SU.isLandscapeDynamic(context) ? 4 : 3;
     final delegate = SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: SU.designWidth / maxExtend,
         mainAxisSpacing: myTheme.gridSpacing,

@@ -1,10 +1,13 @@
 import 'package:fi/api/client.dart';
-import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/video.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:fi/ext/extendable_theme.dart';
+import 'package:fi/util/adaptor.dart';
+import 'package:fi/util/page.dart';
+import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'dart:math' as math;
 
-
+///视频播放器
 class BVideoPlayer extends StatefulWidget {
   final VideoPlayUrl playUrl;
 
@@ -21,21 +24,143 @@ class _BVideoPlayerState extends State<BVideoPlayer> {
   void initState() {
     final header = BClient.globalCookie ?? const <String, String>{};
     _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.playUrl.urlList[0].url),
+        Uri.parse("https://media.w3.org/2010/05/sintel/trailer.mp4"),
         httpHeaders: header)
-      ..initialize().then((value) => setState(() {}));
+      ..initialize().then((value) {
+        setState(() {
+          _controller.play();
+        });
+      });
 
     super.initState();
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    _controller.play();
-    return Center(
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: VideoPlayer(_controller),
-      ),
+    return BVideoPlayerController(
+      controller: _controller,
     );
+  }
+}
+
+///播放控件
+class BVideoPlayerController extends StatelessWidget {
+  final VideoPlayerController controller;
+
+  const BVideoPlayerController({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final videoRatio = controller.value.aspectRatio;
+
+    return SafeArea(
+      child: LayoutBuilder(builder: (context, constraint) {
+        debugPrint("player constraint: $constraint");
+        return AspectRatio(
+            aspectRatio: videoRatio,
+            child: SizedBox(
+                width: math.max(
+                    constraint.maxWidth, constraint.maxHeight * videoRatio),
+                child: Stack(children: [
+                  VideoPlayer(controller),
+                  Align(
+                      alignment: Alignment.bottomCenter,
+                      heightFactor: 80,
+                      child: ProgressController(
+                        controller: controller,
+                      ))
+                ])));
+      }),
+    );
+  }
+}
+
+class ProgressController extends StatelessWidget {
+  final VideoPlayerController controller;
+
+  const ProgressController({super.key, required this.controller});
+
+  bool get isPlaying => controller.value.isPlaying;
+
+  IconData get playIconData => isPlaying ? Icons.pause : Icons.play_arrow;
+
+  _formatTime(Duration duration) =>
+      "${duration.inHours}:${duration.inMinutes}:${duration.inSeconds}";
+
+  //获取最终的播放按钮
+  Widget get playerIcon => GestureDetector(
+        onTap: _handleTapPlay,
+        child: ListenableBuilder(
+          builder: (context, _) {
+            return Icon(
+              playIconData,
+              color: Colors.white,
+            );
+          },
+          listenable: controller,
+        ),
+      );
+
+  _handleTapPlay() =>
+      controller.value.isPlaying ? controller.pause() : controller.play();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        playerIcon,
+        Expanded(flex: 5, child: ProgressBar()),
+        ListenableBuilder(
+            listenable: controller,
+            builder: (context, _) {
+              return FutureBuilder(
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return PU.loading;
+                  }
+                  final data = snapshot.data!;
+                  return Text(
+                      "${_formatTime(data)}/${_formatTime(controller.value.duration)}");
+                },
+                future: controller.position,
+              );
+            }),
+        Icon(Icons.fullscreen)
+      ],
+    );
+  }
+}
+
+///进度条
+class ProgressBar extends StatelessWidget {
+  final ValueNotifier<double>? progress;
+
+  const ProgressBar({super.key, this.progress});
+
+  @override
+  Widget build(BuildContext context) {
+    final myTheme = MyThemeWidget.of(context)!;
+    return LayoutBuilder(builder: (context, constraint) {
+      debugPrint("player widget: $constraint");
+      return SizedBox(
+        height: SU.rpx(5),
+        width: constraint.maxWidth,
+        child: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  color: Colors.red, borderRadius: myTheme.smallBorderRadius),
+            )
+          ],
+        ),
+      );
+    });
   }
 }
