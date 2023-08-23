@@ -28,6 +28,7 @@ class _BVideoPlayerState extends State<BVideoPlayer> {
         httpHeaders: header)
       ..initialize().then((value) {
         setState(() {
+          _controller.setLooping(true);
           _controller.play();
         });
       });
@@ -91,7 +92,7 @@ class ProgressController extends StatelessWidget {
   IconData get playIconData => isPlaying ? Icons.pause : Icons.play_arrow;
 
   _formatTime(Duration duration) =>
-      "${duration.inHours}:${duration.inMinutes}:${duration.inSeconds}";
+      duration.toString().split('.').first.padLeft(8, "0");
 
   //获取最终的播放按钮
   Widget get playerIcon => GestureDetector(
@@ -112,11 +113,15 @@ class ProgressController extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ValueNotifier<double> localProgress = ValueNotifier(0);
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         playerIcon,
-        Expanded(flex: 5, child: ProgressBar()),
+        ProgressBar(
+          progress: localProgress,
+        ),
         ListenableBuilder(
             listenable: controller,
             builder: (context, _) {
@@ -126,13 +131,23 @@ class ProgressController extends StatelessWidget {
                     return PU.loading;
                   }
                   final data = snapshot.data!;
+                  Future(() {
+                    localProgress.value =
+                        data.inSeconds / controller.value.duration.inSeconds;
+                  });
+
+                  debugPrint("progress: ${localProgress.value}");
                   return Text(
-                      "${_formatTime(data)}/${_formatTime(controller.value.duration)}");
+                      "${_formatTime(data)}/${_formatTime(controller.value.duration)}",
+                  );
                 },
                 future: controller.position,
               );
             }),
-        Icon(Icons.fullscreen)
+        Icon(
+          Icons.fullscreen,
+          color: Colors.white,
+        )
       ],
     );
   }
@@ -140,27 +155,37 @@ class ProgressController extends StatelessWidget {
 
 ///进度条
 class ProgressBar extends StatelessWidget {
-  final ValueNotifier<double>? progress;
+  final ValueNotifier<double> progress;
 
-  const ProgressBar({super.key, this.progress});
+  const ProgressBar({super.key, required this.progress});
 
   @override
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context)!;
-    return LayoutBuilder(builder: (context, constraint) {
-      debugPrint("player widget: $constraint");
-      return SizedBox(
+
+    final totalWidth = MediaQuery.sizeOf(context).width / 3;
+    return SizedBox(
         height: SU.rpx(5),
-        width: constraint.maxWidth,
+        width: totalWidth,
         child: Stack(
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: Colors.red, borderRadius: myTheme.smallBorderRadius),
-            )
+                  color: Colors.white10,
+                  borderRadius: myTheme.smallBorderRadius),
+            ),
+            ListenableBuilder(
+                listenable: progress,
+                builder: (context, _) {
+                  return Container(
+                    width: totalWidth * progress.value,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: myTheme.smallBorderRadius),
+                  );
+                })
           ],
         ),
       );
-    });
   }
 }
