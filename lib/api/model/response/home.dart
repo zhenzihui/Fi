@@ -1,9 +1,13 @@
+import 'package:fi/api/model/response/video.dart';
+
 class BaseVideo {
   final String bvId;
   final num cId;
   final String title;
   final String pic;
   final num id;
+  final Owner owner;
+  final VideoStat? stat;
 
   static BaseVideo fromJson(Map<String, dynamic> raw) => BaseVideo(
         bvId: raw['bvid'],
@@ -11,6 +15,8 @@ class BaseVideo {
         title: raw['title'],
         pic: raw['pic'],
         id: raw['id'],
+        owner: Owner.fromJson(raw['owner']),
+        stat: raw['stat'] == null? null: VideoStat.fromJson(raw['stat']),
       );
 
   static List<BaseVideo> fromJsonList(List<dynamic> list) =>
@@ -21,6 +27,8 @@ class BaseVideo {
       required this.cId,
       required this.title,
       required this.pic,
+      required this.owner,
+      required this.stat,
       required this.id});
 }
 

@@ -21,6 +21,15 @@ class MyThemeWidget extends InheritedWidget {
   // 醒目价格
   final TextStyle specialPriceText;
 
+  // up名字
+  final TextStyle ownerNameText;
+  // up 信息
+  final TextStyle ownerInfoText;
+  //视频标题
+  final TextStyle videoTitleText;
+  //视频简介
+  final TextStyle videoDescText;
+
   // 单个view样式
   final BoxDecoration viewDeco;
 
@@ -45,6 +54,7 @@ class MyThemeWidget extends InheritedWidget {
   /// 定义颜色
   static const Color viewBackground = Colors.white;
   static const Color background = Color(0xffF0F0F0);
+  static const Color primary = Color(0xfffb7299);
 
   /// 定义颜色 end
 
@@ -58,6 +68,10 @@ class MyThemeWidget extends InheritedWidget {
     this.priceText = const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
     this.specialPriceText = const TextStyle(
         fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+    this.ownerInfoText = const TextStyle(fontSize: 5, color: Colors.white10),
+    this.ownerNameText = const TextStyle(fontSize: 10, color: primary),
+    this.videoDescText = const TextStyle(fontSize: 6, color: Colors.white10),
+    this.videoTitleText = const TextStyle(fontSize: 10),
   })  : smallBorderRadius = BorderRadius.circular(5),
         mediumBorderRadius = BorderRadius.circular(10),
         largeBorderRadius = BorderRadius.circular(20),

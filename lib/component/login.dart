@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/login.dart';
 import 'package:fi/api/model/response/login.dart';
+import 'package:fi/page/index/Home.dart';
+import 'package:fi/util/page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -68,6 +70,10 @@ class _State extends State<LoginQR> {
             stream: qrPollStreamController.stream,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                if(snapshot.data?.code == 0) {
+                  Future(() => PU().offTo(const HomePage()));
+                }
+
                 return Text("扫码结果: ${snapshot.data?.message}");
               }
               return Text("No event");

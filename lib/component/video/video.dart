@@ -1,15 +1,13 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/response/home.dart';
-import 'package:fi/api/model/response/video.dart';
-import 'package:fi/component/test.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/video/player.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 
 //视频列表
 class VideoList extends StatefulWidget {
@@ -36,8 +34,12 @@ class _VideoListState extends State<VideoList> {
     });
   }
 
-  _getMore() => BClient.getRecommendedVideos()
-      .then((listData) => listStream.add(listData));
+  _getMore() {
+    BClient.getRecommendedVideos()
+        .then((listData) => listStream.add(listData))
+        .onError((DioException error, stackTrace) {
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,14 +64,13 @@ class _VideoListState extends State<VideoList> {
                   return const SliverToBoxAdapter(child: Divider());
                 }
                 final resList = cacheList..addAll(snapshot.data ?? []);
-                final pageUtil = PU(context);
 
                 final childDelegate = SliverChildBuilderDelegate(
                   (_, index) {
                     final current = resList[index];
                     return VideoListItem(
                       data: current,
-                      onTap: () => pageUtil.to(VideoPlayerPage(data: current)),
+                      onTap: () => PU().to(VideoPlayerPage(data: current)),
                     );
                   },
                   childCount: resList.length,

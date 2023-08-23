@@ -11,7 +11,10 @@ import 'package:fi/api/model/response/base.dart';
 import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/login.dart';
 import 'package:fi/api/model/response/video.dart';
+import 'package:fi/page/index/home.dart';
+import 'package:fi/util/page.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// 添加日志
@@ -61,7 +64,7 @@ class LoggerInterceptor extends InterceptorsWrapper {
   }
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) {
+  void onError(DioException err, ErrorInterceptorHandler handler) {
     if (isRelease) {
       super.onError(err, handler);
     } else {
@@ -104,6 +107,9 @@ class LoggerInterceptor extends InterceptorsWrapper {
 
 /// 添加请求头
 class RequestInterceptor extends Interceptor {
+
+  _toPage(Widget page) => Future(() => PU().offTo(page));
+
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     final clientHeader = {
@@ -133,13 +139,21 @@ class RequestInterceptor extends Interceptor {
             .reduce((p, n) => p..addAll(n));
       }
     });
-    // BClient.globalCookie ??= response.headers as Map<String, String>;
+    //检查code
+    if(response.statusCode == 412) {
+      _toPage(LoginPage());
+    }
+
+
     handler.next(response);
   }
+
 }
 
 class BClient {
-  static final _dio = Dio()..interceptors.addAll(_interceptors);
+  static final _dio = Dio()
+    ..interceptors.addAll(_interceptors)
+  ;
   static final _interceptors = [
     LoggerInterceptor(false),
     RequestInterceptor(),
@@ -152,6 +166,9 @@ class BClient {
     _interceptors.add(CookieManager(
         PersistCookieJar(storage: FileStorage(cookieInterceptor.path))));
     _dio.interceptors.addAll(_interceptors);
+    _dio.options = BaseOptions(
+      validateStatus: (_) => true
+    );
   }
 
   /// 生成登陆二维码
@@ -178,7 +195,9 @@ class BClient {
         .get(ApiHome.getRecommendedVideos.api)
         .then((value) => _handleJsonResponse(value))
         .then((data) => BaseVideo.fromJsonList(
-            _handleDataAsList(data, keyName: HostInfo.listKeyItem)));
+            _handleDataAsList(data, keyName: HostInfo.listKeyItem)))
+        // .onError((error, stackTrace) { throw error!; })
+    ;
   }
 
   /// 获取视频详情
@@ -209,12 +228,6 @@ class BClient {
       return Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
           orElse: () => BizCode.unknown));
     }
-    // if (globalCookie == null) {
-    //   final cookies = await CookieJar().loadForRequest(Uri.parse(HostInfo.passport));
-    //   globalCookie = cookies.map((e) => {e.name: e.value})
-    //           .reduce((p, n) => p..addAll(n));
-    // }
-
     return biz.data;
   }
 

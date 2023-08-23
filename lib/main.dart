@@ -8,6 +8,7 @@ import 'package:fi/component/login.dart';
 import 'package:fi/component/test.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/index/home.dart';
+import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:fi/util/adaptor.dart';
@@ -24,9 +25,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SU.initialize(context);
+    PU.initialize();
+
     return MyThemeWidget(
       child: MaterialApp(
         title: 'Flutter Demo',
+        navigatorObservers: [MyNavObserver.getInstance()],
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Color(0xfffb7299)),
           useMaterial3: true,

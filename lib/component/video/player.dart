@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:math' as math;
 
-///视频播放器
+///视频播放器 (竖屏)
 class BVideoPlayer extends StatefulWidget {
   final VideoPlayUrl playUrl;
 
@@ -24,7 +24,7 @@ class _BVideoPlayerState extends State<BVideoPlayer> {
   void initState() {
     final header = BClient.globalCookie ?? const <String, String>{};
     _controller = VideoPlayerController.networkUrl(
-        Uri.parse("https://media.w3.org/2010/05/sintel/trailer.mp4"),
+        Uri.parse(widget.playUrl.urlList[0].url??""),
         httpHeaders: header)
       ..initialize().then((value) {
         setState(() {
@@ -136,7 +136,6 @@ class ProgressController extends StatelessWidget {
                         data.inSeconds / controller.value.duration.inSeconds;
                   });
 
-                  debugPrint("progress: ${localProgress.value}");
                   return Text(
                       "${_formatTime(data)}/${_formatTime(controller.value.duration)}",
                   );
