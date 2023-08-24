@@ -32,7 +32,7 @@ class VideoDetail {
       cId: raw['cid'],
       title: raw['title'],
       owner: Owner.fromJson(raw['owner']),
-      pubDate: DateTime.fromMillisecondsSinceEpoch(raw['pubdate'] * 100 as int)
+      pubDate: DateTime.fromMillisecondsSinceEpoch(raw['pubdate'] * 1000 as int)
           .toLocal(),
       stat: VideoStat.fromJson(raw['stat']),
     );
@@ -121,15 +121,15 @@ class Owner {
 
 /// 视频信息
 class VideoStat {
-  final String view;
-  final String danmaku;
+  final String? view;
+  final String? danmaku;
   final String? reply;
   final String? favorite;
   final String? coin;
   final String? share;
   final String? nowRank;
   final String? hisRank;
-  final String like;
+  final String? like;
   final String? evaluation;
   final String? argueMsg;
 
@@ -147,7 +147,7 @@ class VideoStat {
       required this.argueMsg});
 
   static fromJson(dynamic raw) {
-    VideoStat(
+    return VideoStat(
       view: raw['view'].toString(),
       danmaku: raw['danmaku'].toString(),
       reply: raw['reply'].toString(),

@@ -13,7 +13,7 @@ class PU {
 
   pop() => _navigator.pop();
 
-  static get loading => const CircularProgressIndicator();
+  static Widget get loading => const CircularProgressIndicator();
 
   static late GlobalKey<NavigatorState> navigatorKey;
   static late NavigatorObserver navigatorObserver;

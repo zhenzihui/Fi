@@ -2,8 +2,7 @@ import 'dart:ui';
 
 import 'package:fi/util/adaptor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
+import 'dart:math' as math;
 class MyThemeWidget extends InheritedWidget {
   /// 定义字体
   // 页面标题
@@ -55,6 +54,8 @@ class MyThemeWidget extends InheritedWidget {
   static const Color viewBackground = Colors.white;
   static const Color background = Color(0xffF0F0F0);
   static const Color primary = Color(0xfffb7299);
+
+  Color get debugColor => Colors.primaries[math.Random().nextInt(Colors.primaries.length)];
 
   /// 定义颜色 end
 
