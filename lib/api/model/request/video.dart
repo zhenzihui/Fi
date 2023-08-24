@@ -1,8 +1,8 @@
 
 ///获取视频详情请求
+///获取关联视频请求
 class GetVideoDetailReq {
   final String bvId;
-
   GetVideoDetailReq({required this.bvId});
 
   toJson() => {

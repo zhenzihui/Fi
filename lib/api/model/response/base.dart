@@ -1,9 +1,11 @@
 
 //返回单个值的最外层
+import 'package:flutter/cupertino.dart';
+
 class BizResponse {
   final num code;
   final String message;
-  final num ttl;
+  final num? ttl;
   final dynamic data;
 
   BizResponse(

@@ -30,7 +30,6 @@ class ApiBuilder<T> extends StatelessWidget {
         }
         return Container(
             child: onError?.call(context, snapshot.error) ??
-                SnackBar(
-                    content: Text(snapshot.error?.toString() ?? "loading")));
+                Text(snapshot.error?.toString() ?? "loading"));
       });
 }

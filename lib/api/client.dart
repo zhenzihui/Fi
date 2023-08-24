@@ -107,7 +107,6 @@ class LoggerInterceptor extends InterceptorsWrapper {
 
 /// 添加请求头
 class RequestInterceptor extends Interceptor {
-
   _toPage(Widget page) => Future(() => PU().offTo(page));
 
   @override
@@ -140,20 +139,17 @@ class RequestInterceptor extends Interceptor {
       }
     });
     //检查code
-    if(response.statusCode == 412) {
+    if (response.statusCode == 412) {
       _toPage(LoginPage());
     }
 
-
     handler.next(response);
   }
-
 }
 
 class BClient {
-  static final _dio = Dio()
-    ..interceptors.addAll(_interceptors)
-  ;
+  static final _dio = Dio()..interceptors.addAll(_interceptors);
+
   static final _interceptors = [
     LoggerInterceptor(false),
     RequestInterceptor(),
@@ -166,9 +162,7 @@ class BClient {
     _interceptors.add(CookieManager(
         PersistCookieJar(storage: FileStorage(cookieInterceptor.path))));
     _dio.interceptors.addAll(_interceptors);
-    _dio.options = BaseOptions(
-      validateStatus: (_) => true
-    );
+    _dio.options = BaseOptions(validateStatus: (_) => true);
   }
 
   /// 生成登陆二维码
@@ -192,12 +186,12 @@ class BClient {
   /// 查询推荐
   static Future<List<BaseVideo>> getRecommendedVideos() {
     return _dio
-        .get(ApiHome.getRecommendedVideos.api)
-        .then((value) => _handleJsonResponse(value))
-        .then((data) => BaseVideo.fromJsonList(
-            _handleDataAsList(data, keyName: HostInfo.listKeyItem)))
+            .get(ApiHome.getRecommendedVideos.api)
+            .then((value) => _handleJsonResponse(value))
+            .then((data) => BaseVideo.fromJsonList(
+                _handleDataAsList(data, HostInfo.listKeyItem)))
         // .onError((error, stackTrace) { throw error!; })
-    ;
+        ;
   }
 
   /// 获取视频详情
@@ -216,6 +210,15 @@ class BClient {
         .then((value) => VideoPlayUrl.fromJson(value));
   }
 
+  /// 获取视频的关联视频
+  static Future<List<VideoDetail>> getRelatedVideo(GetVideoDetailReq req) {
+    return _dio
+        .get(ApiVideo.getRelated.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) =>
+            compute((message) => message, VideoDetail.fromJsonList(value)));
+  }
+
   /// 以下是内部方法
   /// 判断是否有业务错误， 返回data
   static Future<dynamic> _handleJsonResponse(Response<dynamic> response) async {
@@ -232,6 +235,6 @@ class BClient {
   }
 
   static List<dynamic> _handleDataAsList(Map<String, dynamic> data,
-          {required String keyName}) =>
+          [String keyName = HostInfo.dataKeyItem]) =>
       data[keyName] as List<dynamic>;
 }

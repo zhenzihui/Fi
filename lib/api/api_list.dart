@@ -1,5 +1,6 @@
 class HostInfo {
   static const listKeyItem = "item";
+  static const dataKeyItem = "data";
 
   //登陆
   static const passport = "https://passport.bilibili.com";
@@ -45,7 +46,7 @@ enum ApiHome {
   final String api;
   final String desc;
 }
-
+///视频相关接口
 enum ApiVideo{
 
   /// test: BV16X4y1x7q6
@@ -56,7 +57,12 @@ enum ApiVideo{
   getPlayUrl(
     api: "${HostInfo.api}/x/player/playurl",
     desc: "获取播放地址"
-  )
+  ),
+
+  getRelated(
+    api: "${HostInfo.api}/x/web-interface/archive/related",
+    desc: "获取关联视频"
+  ),
 
   ;
 
@@ -66,16 +72,4 @@ enum ApiVideo{
   final String api;
   final String desc;
 }
-
-/// 流接口
-// enum ApiStream {
-//   getRecommendedVideos(
-//       api: "${HostInfo.api}/x/web-interface/index/top/rcmd", desc: "获取主页推荐的视频"),
-//   ;
-//
-//   const ApiStream({required this.api, required this.desc});
-//
-//   final String api;
-//   final String desc;
-// }
 

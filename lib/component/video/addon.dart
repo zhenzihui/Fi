@@ -1,10 +1,10 @@
 import 'package:fi/api/client.dart';
+import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/api.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/util/adaptor.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class OwnerInfo extends StatelessWidget {
@@ -71,7 +71,8 @@ class VideoAddonInfo extends StatelessWidget {
             VideoOptionRow(
               stat: data.stat,
             ),
-            Divider()
+            Divider(),
+            VideoRelatedList(bvId: data.bvId,)
           ],
         ),
       ),
@@ -191,6 +192,66 @@ class VideoOption extends StatelessWidget {
       height: SU.rpx(100),
       child: Column(
         children: [icon, Text(text)],
+      ),
+    );
+  }
+}
+
+///关联推荐视频list
+class VideoRelatedList extends StatelessWidget {
+  final String bvId;
+
+  const VideoRelatedList({super.key, required this.bvId});
+
+  @override
+  Widget build(BuildContext context) {
+    return ApiBuilder(
+      BClient.getRelatedVideo(GetVideoDetailReq(bvId: bvId)),
+      builder: (context, data) {
+        return Column(
+          children: data
+              .map((e) => VideoRelatedListItem(
+                    detail: e,
+                  ))
+              .toList(),
+        );
+      },
+    );
+  }
+}
+
+///关联推荐视频list item
+class VideoRelatedListItem extends StatelessWidget {
+  final VideoDetail detail;
+
+  const VideoRelatedListItem({super.key, required this.detail});
+
+  @override
+  Widget build(BuildContext context) {
+    final myTheme = MyThemeWidget.of(context)!;
+
+    return Padding(
+      padding: EdgeInsets.all(myTheme.paddingDefault),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Image.network(detail.pic),
+          SizedBox(
+            width: SU.rpx(10),
+          ),
+          Column(
+            children: [
+              Text(detail.title),
+              Text(detail.owner.name),
+              Row(
+                children: [
+                  Text("📺 ${detail.stat.view}"),
+                  Text("📰 ${detail.stat.danmaku}")
+                ],
+              )
+            ],
+          )
+        ],
       ),
     );
   }

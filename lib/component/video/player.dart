@@ -62,7 +62,6 @@ class BVideoPlayerController extends StatelessWidget {
 
     return SafeArea(
       child: LayoutBuilder(builder: (context, constraint) {
-        debugPrint("player constraint: $constraint");
         return AspectRatio(
             aspectRatio: videoRatio,
             child: SizedBox(
