@@ -16,11 +16,11 @@ class ApiBuilder<T> extends StatelessWidget {
       future: future,
       builder: (context, snapshot) {
         final waitingWidget = waiting ?? PU.loading;
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          //等待返回
-          return waitingWidget;
-        }
+        //
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   //等待返回
+        //   return waitingWidget;
+        // }
 
         if (snapshot.connectionState == ConnectionState.done) {
           //返回数据

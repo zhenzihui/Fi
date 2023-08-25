@@ -52,8 +52,9 @@ class OwnerInfo extends StatelessWidget {
 //视频下面的详情
 class VideoAddonInfo extends StatelessWidget {
   final BaseVideo baseVideo;
+  final ScrollController controller;
 
-  const VideoAddonInfo({super.key, required this.baseVideo});
+  const VideoAddonInfo({super.key, required this.baseVideo, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -65,17 +66,58 @@ class VideoAddonInfo extends StatelessWidget {
       child: ApiBuilder(
         BClient.getVideoDetail(baseVideo.bvId),
         builder: (context, data) => ListView(
+          controller: controller,
           children: [
             OwnerInfo(owner: baseVideo.owner),
             VideoDesc(
               theme: myTheme,
               data: data,
             ),
+            SizedBox(height: SU.rpx(20),),
+
             VideoOptionRow(
               stat: data.stat,
             ),
             Divider(),
-            VideoRelatedList(bvId: data.bvId,)
+            VideoRelatedList(
+              bvId: data.bvId,
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+class VideoAddonInfo2 extends StatelessWidget {
+  final BaseVideo baseVideo;
+
+  const VideoAddonInfo2({super.key, required this.baseVideo});
+
+  @override
+  Widget build(BuildContext context) {
+    final myTheme = MyThemeWidget.of(context);
+    return Padding(
+      padding: EdgeInsets.only(
+          left: myTheme?.paddingDefault ?? 0,
+          right: myTheme?.paddingDefault ?? 0),
+      child: ApiBuilder(
+        BClient.getVideoDetail(baseVideo.bvId),
+        builder: (context, data) => Column(
+          children: [
+            OwnerInfo(owner: baseVideo.owner),
+            VideoDesc(
+              theme: myTheme,
+              data: data,
+            ),
+            SizedBox(height: SU.rpx(20),),
+
+            VideoOptionRow(
+              stat: data.stat,
+            ),
+            Divider(),
+            VideoRelatedList(
+              bvId: data.bvId,
+            )
           ],
         ),
       ),
@@ -93,7 +135,7 @@ class VideoDesc extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final myTheme = theme ?? MyThemeWidget.of(context);
-    final descController = ValueNotifier(true);
+    final descController = ValueNotifier(false);
     final stat = data.stat;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,18 +164,20 @@ class VideoDesc extends StatelessWidget {
                 );
               }),
         ),
-        SizedBox(
-          width: SU.rpx(500),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              VideoStatIcon(icon: Text("📺"), text: stat.view??'-'),
-              VideoStatIcon(icon: Text("📰"), text: stat.danmaku??'-'),
-              Text(data.pubDate
-                  .toString()
-                  .substring(0, data.pubDate.toString().indexOf("."))),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 6,
+              child: Row(children: [
+                VideoStatIcon(icon: Text("📺"), text: stat.view ?? '-'),
+                VideoStatIcon(icon: Text("📰"), text: stat.danmaku ?? '-'),
+              ]),
+            ),
+            Text(data.pubDate
+                .toString()
+                .substring(0, data.pubDate.toString().indexOf("."))),
+          ],
         ),
         ListenableBuilder(
             listenable: descController,
@@ -171,7 +215,7 @@ class VideoOptionRow extends StatelessWidget {
         VideoStatIcon(
           landscape: true,
           icon: Text("👍"),
-          text: stat.like??"-",
+          text: stat.like ?? "-",
         ),
         const VideoStatIcon(
           landscape: true,
@@ -184,26 +228,24 @@ class VideoOptionRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: Container(
                 color: Colors.amber,
-                child: Padding(padding:  EdgeInsets.all(1),child: Text("币"))),
+                child: Padding(padding: EdgeInsets.all(1), child: Text("币"))),
           ),
-          text: stat.coin??"-",
+          text: stat.coin ?? "-",
         ),
         VideoStatIcon(
           landscape: true,
           icon: Text("⭐"),
-          text: stat.favorite??"-",
+          text: stat.favorite ?? "-",
         ),
         VideoStatIcon(
           landscape: true,
           icon: Text("👏"),
-          text: stat.share??"-",
+          text: stat.share ?? "-",
         ),
       ],
     );
   }
 }
-
-
 
 ///关联推荐视频list
 class VideoRelatedList extends StatelessWidget {
@@ -235,6 +277,7 @@ class VideoRelatedList extends StatelessWidget {
 class VideoRelatedListItem extends StatelessWidget {
   final VideoDetail detail;
   final VoidCallback? onTap;
+
   const VideoRelatedListItem({super.key, required this.detail, this.onTap});
 
   @override
@@ -254,8 +297,10 @@ class VideoRelatedListItem extends StatelessWidget {
                   aspectRatio: 16 / 9,
                   child: ClipRRect(
                       borderRadius: myTheme.smallBorderRadius,
-                      child: Image.network(detail.pic, fit: BoxFit.fitWidth, ))),
-
+                      child: Image.network(
+                        detail.pic,
+                        fit: BoxFit.fitWidth,
+                      ))),
               SizedBox(
                 width: SU.rpx(10),
               ),
@@ -265,8 +310,11 @@ class VideoRelatedListItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(detail.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
-
+                    Text(
+                      detail.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -274,8 +322,12 @@ class VideoRelatedListItem extends StatelessWidget {
                         Text(detail.owner.name),
                         Row(
                           children: [
-                            VideoStatIcon(icon: const Text("📺"), text: detail.stat.view??""),
-                            VideoStatIcon(icon: const Text("📰"), text: detail.stat.danmaku??""),
+                            VideoStatIcon(
+                                icon: const Text("📺"),
+                                text: detail.stat.view ?? ""),
+                            VideoStatIcon(
+                                icon: const Text("📰"),
+                                text: detail.stat.danmaku ?? ""),
                           ],
                         )
                       ],

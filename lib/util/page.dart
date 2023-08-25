@@ -13,7 +13,7 @@ class PU {
 
   pop() => _navigator.pop();
 
-  static Widget get loading => const CircularProgressIndicator();
+  static Widget get loading => SliverToBoxAdapter(child: const CircularProgressIndicator());
 
   static late GlobalKey<NavigatorState> navigatorKey;
   static late NavigatorObserver navigatorObserver;

@@ -3,11 +3,11 @@ import 'package:fi/api/model/response/video.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
+import 'package:fi/util/player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:math' as math;
 
-///视频播放器 (竖屏)
+///视频播放器
 class BVideoPlayer extends StatefulWidget {
   final VideoPlayUrl playUrl;
 
@@ -24,7 +24,7 @@ class _BVideoPlayerState extends State<BVideoPlayer> {
   void initState() {
     final header = BClient.globalCookie ?? const <String, String>{};
     _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.playUrl.urlList[0].url??""),
+        Uri.parse(widget.playUrl.urlList[0].url ?? ""),
         httpHeaders: header)
       ..initialize().then((value) {
         setState(() {
@@ -62,20 +62,52 @@ class BVideoPlayerController extends StatelessWidget {
 
     return SafeArea(
       child: LayoutBuilder(builder: (context, constraint) {
-        return AspectRatio(
-            aspectRatio: videoRatio,
-            child: SizedBox(
-                width: math.max(
-                    constraint.maxWidth, constraint.maxHeight * videoRatio),
-                child: Stack(children: [
-                  VideoPlayer(controller),
-                  Align(
-                      alignment: Alignment.bottomCenter,
-                      heightFactor: 80,
-                      child: ProgressController(
-                        controller: controller,
-                      ))
-                ])));
+        return Container(
+          color: Colors.black,
+          child: Stack(children: [
+            Align(
+              alignment: Alignment.center,
+                child: AspectRatio(aspectRatio: videoRatio, child: VideoPlayer(controller))),
+            Align(
+                alignment: Alignment.bottomCenter,
+                heightFactor: 80,
+                child: ProgressController(
+                  controller: controller,
+                ))
+          ]),
+        );
+      }),
+    );
+  }
+}
+
+///播放控件 注入控制器
+class BVideoPlayerController2 extends StatelessWidget {
+
+  const BVideoPlayerController2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = UniPlayerController.getInstance();
+
+    final videoRatio = controller.value.aspectRatio;
+
+    return SafeArea(
+      child: LayoutBuilder(builder: (context, constraint) {
+        return Container(
+          color: Colors.black,
+          child: Stack(children: [
+            Align(
+              alignment: Alignment.center,
+                child: AspectRatio(aspectRatio: videoRatio, child: VideoPlayer(controller))),
+            Align(
+                alignment: Alignment.bottomCenter,
+                heightFactor: 80,
+                child: ProgressController(
+                  controller: controller,
+                ))
+          ]),
+        );
       }),
     );
   }
@@ -136,7 +168,7 @@ class ProgressController extends StatelessWidget {
                   });
 
                   return Text(
-                      "${_formatTime(data)}/${_formatTime(controller.value.duration)}",
+                    "${_formatTime(data)}/${_formatTime(controller.value.duration)}",
                   );
                 },
                 future: controller.position,
@@ -163,27 +195,26 @@ class ProgressBar extends StatelessWidget {
 
     final totalWidth = MediaQuery.sizeOf(context).width / 3;
     return SizedBox(
-        height: SU.rpx(5),
-        width: totalWidth,
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  color: Colors.white10,
-                  borderRadius: myTheme.smallBorderRadius),
-            ),
-            ListenableBuilder(
-                listenable: progress,
-                builder: (context, _) {
-                  return Container(
-                    width: totalWidth * progress.value,
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).primaryColor,
-                        borderRadius: myTheme.smallBorderRadius),
-                  );
-                })
-          ],
-        ),
-      );
+      height: SU.rpx(5),
+      width: totalWidth,
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.white10, borderRadius: myTheme.smallBorderRadius),
+          ),
+          ListenableBuilder(
+              listenable: progress,
+              builder: (context, _) {
+                return Container(
+                  width: totalWidth * progress.value,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: myTheme.smallBorderRadius),
+                );
+              })
+        ],
+      ),
+    );
   }
 }

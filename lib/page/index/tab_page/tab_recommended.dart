@@ -10,7 +10,7 @@ class RecommendedPage extends StatelessWidget {
     return SizedBox(
         width: SU.screenWidth,
         height: SU.screenHeight,
-        child: VideoList());
+        child: const VideoList());
   }
 
 }
