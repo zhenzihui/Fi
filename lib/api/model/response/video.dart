@@ -1,4 +1,6 @@
+import 'package:fi/api/model/response/home.dart';
 import 'package:flutter/material.dart';
+
 /// 获取视频详情的data
 class VideoDetail {
   final String bvId;
@@ -25,8 +27,8 @@ class VideoDetail {
 
   static VideoDetail fromJson(Map<String, dynamic> raw) {
     return VideoDetail(
-      bvId: raw['bvid']??"-",
-      desc: raw['desc']??"-",
+      bvId: raw['bvid'] ?? "-",
+      desc: raw['desc'] ?? "-",
       videos: raw['videos'],
       aId: raw['aid'],
       tId: raw['tid'],
@@ -34,17 +36,15 @@ class VideoDetail {
       title: raw['title'],
       pic: raw['pic'],
       owner: Owner.fromJson(raw['owner']),
-      pubDate: DateTime.fromMillisecondsSinceEpoch(raw['pubdate']??0 * 1000 as int)
-          .toLocal(),
+      pubDate:
+          DateTime.fromMillisecondsSinceEpoch(raw['pubdate'] ?? 0 * 1000 as int)
+              .toLocal(),
       stat: VideoStat.fromJson(raw['stat']),
     );
   }
 
   static List<VideoDetail> fromJsonList(List<dynamic> list) {
-    debugPrint("开始 list to List<VideoDetail>");
-
-    return list.map((e)  {
-      debugPrint("处理 ${list.indexOf(e)+1}/${list.length}: $e");
+    return list.map((e) {
       return fromJson(e);
     }).toList();
     // list.map((e) => fromJson(e)).toList();
@@ -62,6 +62,8 @@ class VideoDetail {
       required this.stat,
       required this.pic,
       required this.pubDate});
+
+  BaseVideo toBaseVideo() => BaseVideo(bvId: bvId, cId: cId??0, title: title, pic: pic, owner: owner, stat: stat);
 }
 
 class VideoPlayUrl {

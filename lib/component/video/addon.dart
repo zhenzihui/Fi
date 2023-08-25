@@ -3,8 +3,11 @@ import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/api.dart';
+import 'package:fi/component/icon/operation.dart';
 import 'package:fi/ext/extendable_theme.dart';
+import 'package:fi/page/video/player.dart';
 import 'package:fi/util/adaptor.dart';
+import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
 
 class OwnerInfo extends StatelessWidget {
@@ -164,38 +167,42 @@ class VideoOptionRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        VideoOption(
+        VideoStatIcon(
+          landscape: true,
           icon: Text("👍"),
-          text: "点赞",
+          text: stat.like??"-",
         ),
-        VideoOption(
+        const VideoStatIcon(
+          landscape: true,
           icon: RotatedBox(quarterTurns: 90, child: Text("👍")),
-          text: "点赞",
-        )
+          text: "不喜欢",
+        ),
+        VideoStatIcon(
+          landscape: true,
+          icon: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+                color: Colors.amber,
+                child: Padding(padding:  EdgeInsets.all(1),child: Text("币"))),
+          ),
+          text: stat.coin??"-",
+        ),
+        VideoStatIcon(
+          landscape: true,
+          icon: Text("⭐"),
+          text: stat.favorite??"-",
+        ),
+        VideoStatIcon(
+          landscape: true,
+          icon: Text("👏"),
+          text: stat.share??"-",
+        ),
       ],
     );
   }
 }
 
-/// 视频操作按钮
-class VideoOption extends StatelessWidget {
-  final Widget icon;
-  final String text;
-  final VoidCallback? onTap;
 
-  const VideoOption(
-      {super.key, required this.icon, required this.text, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: SU.rpx(100),
-      child: Column(
-        children: [icon, Text(text)],
-      ),
-    );
-  }
-}
 
 ///关联推荐视频list
 class VideoRelatedList extends StatelessWidget {
@@ -212,6 +219,9 @@ class VideoRelatedList extends StatelessWidget {
           children: data
               .map((e) => VideoRelatedListItem(
                     detail: e,
+                    onTap: () => PU().offTo(VideoPlayerPage(
+                      data: e.toBaseVideo(),
+                    )),
                   ))
               .toList(),
         );
@@ -223,8 +233,8 @@ class VideoRelatedList extends StatelessWidget {
 ///关联推荐视频list item
 class VideoRelatedListItem extends StatelessWidget {
   final VideoDetail detail;
-
-  const VideoRelatedListItem({super.key, required this.detail});
+  final VoidCallback? onTap;
+  const VideoRelatedListItem({super.key, required this.detail, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -232,26 +242,49 @@ class VideoRelatedListItem extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.all(myTheme.paddingDefault),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Image.network(detail.pic),
-          SizedBox(
-            width: SU.rpx(10),
-          ),
-          Column(
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          height: SU.rpx(200),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(detail.title),
-              Text(detail.owner.name),
-              Row(
-                children: [
-                  Text("📺 ${detail.stat.view}"),
-                  Text("📰 ${detail.stat.danmaku}")
-                ],
+              AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: ClipRRect(
+                      borderRadius: myTheme.smallBorderRadius,
+                      child: Image.network(detail.pic, fit: BoxFit.fitWidth, ))),
+
+              SizedBox(
+                width: SU.rpx(10),
+              ),
+              Expanded(
+                flex: 6,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(detail.title, maxLines: 2, overflow: TextOverflow.ellipsis,),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text(detail.owner.name),
+                        Row(
+                          children: [
+                            VideoStatIcon(icon: const Text("📺"), text: detail.stat.view??""),
+                            VideoStatIcon(icon: const Text("📰"), text: detail.stat.danmaku??""),
+                          ],
+                        )
+                      ],
+                    ),
+                  ],
+                ),
               )
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }

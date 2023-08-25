@@ -5,7 +5,6 @@ class BaseVideo {
   final num cId;
   final String title;
   final String pic;
-  final num id;
   final Owner owner;
   final VideoStat? stat;
 
@@ -14,7 +13,6 @@ class BaseVideo {
         cId: raw['cid'],
         title: raw['title'],
         pic: raw['pic'],
-        id: raw['id'],
         owner: Owner.fromJson(raw['owner']),
         stat: raw['stat'] == null? null: VideoStat.fromJson(raw['stat']),
       );
@@ -28,7 +26,6 @@ class BaseVideo {
       required this.title,
       required this.pic,
       required this.owner,
-      required this.stat,
-      required this.id});
+      required this.stat});
 }
 

@@ -40,6 +40,8 @@ class LoginQR extends StatefulWidget {
 }
 
 class _State extends State<LoginQR> {
+
+
   _getPollRes(String codeKey, int maxRetry) {
     QrcodePollResp? res;
     int retry = 0;
@@ -49,6 +51,7 @@ class _State extends State<LoginQR> {
       qrPollStreamController.sink.add(res!);
       return res?.code != 0 && retry < maxRetry;
     });
+
   }
 
   late StreamController<QrcodePollResp> qrPollStreamController =
@@ -58,6 +61,12 @@ class _State extends State<LoginQR> {
   void initState() {
     _getPollRes(widget.codeKey, 10);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    qrPollStreamController.close();
   }
 
   @override

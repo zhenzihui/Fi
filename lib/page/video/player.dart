@@ -8,6 +8,7 @@ import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 //播放器页面
 class VideoPlayerPage extends StatefulWidget {
   final BaseVideo data;
@@ -23,8 +24,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
   @override
   void initState() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
-        overlays: []);
+    Future.delayed(
+        const Duration(milliseconds: 500),
+        () => SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
+            overlays: []));
     super.initState();
   }
 
@@ -37,7 +40,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Column(
         children: [
