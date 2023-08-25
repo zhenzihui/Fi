@@ -122,17 +122,18 @@ class VideoDesc extends StatelessWidget {
                 );
               }),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Icon(Icons.play_circle_outline_rounded),
-            Text(stat.view ?? "-"),
-            Icon(Icons.comment),
-            Text(stat.danmaku ?? "-"),
-            Text(data.pubDate
-                .toString()
-                .substring(0, data.pubDate.toString().indexOf("."))),
-          ],
+        SizedBox(
+          width: SU.rpx(500),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              VideoStatIcon(icon: Text("📺"), text: stat.view??'-'),
+              VideoStatIcon(icon: Text("📰"), text: stat.danmaku??'-'),
+              Text(data.pubDate
+                  .toString()
+                  .substring(0, data.pubDate.toString().indexOf("."))),
+            ],
+          ),
         ),
         ListenableBuilder(
             listenable: descController,
