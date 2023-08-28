@@ -28,6 +28,8 @@ class MyThemeWidget extends InheritedWidget {
   final TextStyle videoTitleText;
   //视频简介
   final TextStyle videoDescText;
+  //视频控件文字
+  final TextStyle videoWidgetText;
 
   // 单个view样式
   final BoxDecoration viewDeco;
@@ -73,6 +75,7 @@ class MyThemeWidget extends InheritedWidget {
     this.ownerNameText = const TextStyle(fontSize: 10, color: primary),
     this.videoDescText = const TextStyle(fontSize: 6, color: Colors.white10),
     this.videoTitleText = const TextStyle(fontSize: 10),
+    this.videoWidgetText = const TextStyle(fontSize: 10, color: Colors.white70),
   })  : smallBorderRadius = BorderRadius.circular(5),
         mediumBorderRadius = BorderRadius.circular(10),
         largeBorderRadius = BorderRadius.circular(20),

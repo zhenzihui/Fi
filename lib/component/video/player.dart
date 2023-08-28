@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/util/adaptor.dart';
+import 'package:fi/util/page.dart';
 import 'package:fi/util/player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -28,11 +29,12 @@ class BVideoPlayerController2 extends StatelessWidget {
         (value?.inMilliseconds ?? 0.0) /
             controller.value.duration.inMilliseconds);
     handleAutoHide() {
-      if(controller.value.isPlaying && widgetVisibility.value && hideTimer == null) {
+      if (controller.value.isPlaying &&
+          widgetVisibility.value &&
+          hideTimer == null) {
         hideTimer = Timer(const Duration(seconds: 3), () {
           widgetVisibility.value = false;
           hideTimer = null;
-
         });
       }
     }
@@ -61,17 +63,61 @@ class BVideoPlayerController2 extends StatelessWidget {
                   child: AspectRatio(
                       aspectRatio: videoRatio, child: VideoPlayer(controller))),
             ),
+
+            ///上面的返回按钮
+            Positioned(
+              left: 0,
+              right: 0,
+              child: ListenableBuilder(
+                  listenable: widgetVisibility,
+                  builder: (context, _) {
+                    if (widgetVisibility.value) {
+                      return Container(
+                        decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.black87, Colors.transparent],
+                        )),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              onPressed: () => PU().pop(),
+                              icon: Icon(Icons.arrow_back),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  }),
+            ),
+
+            ///下面的进度控制器
             ListenableBuilder(
               builder: (context, _) {
                 return Positioned(
-                    bottom: widgetVisibility.value? 10 : 0,
+                    bottom: 0,
                     left: 0,
                     right: 0,
                     child: widgetVisibility.value
-                        ? ProgressController(
-                            controller: controller,
+                        ? Container(
+                            decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [Colors.black87, Colors.transparent],
+                            )),
+                            child: ProgressController(
+                              controller: controller,
+                            ),
                           )
-                        : ProgressBar(progress: progress));
+                        : ProgressBar(
+                            progress: progress,
+                            width: MediaQuery.sizeOf(context).width,
+                          ));
               },
               listenable: widgetVisibility,
             )
@@ -114,7 +160,7 @@ class ProgressController extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ValueNotifier<double> localProgress = ValueNotifier(0);
-
+    final myTheme = MyThemeWidget.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -138,12 +184,13 @@ class ProgressController extends StatelessWidget {
 
                   return Text(
                     "${_formatTime(data)}/${_formatTime(controller.value.duration)}",
+                    style: myTheme?.videoWidgetText,
                   );
                 },
                 future: controller.position,
               );
             }),
-        Icon(
+        const Icon(
           Icons.fullscreen,
           color: Colors.white,
         )
@@ -155,14 +202,15 @@ class ProgressController extends StatelessWidget {
 ///进度条
 class ProgressBar extends StatelessWidget {
   final ValueNotifier<double> progress;
+  final double? width;
 
-  const ProgressBar({super.key, required this.progress});
+  const ProgressBar({super.key, required this.progress, this.width});
 
   @override
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context)!;
 
-    final totalWidth = MediaQuery.sizeOf(context).width / 3;
+    final totalWidth = width ?? MediaQuery.sizeOf(context).width / 3;
     return SizedBox(
       height: SU.rpx(5),
       width: totalWidth,
