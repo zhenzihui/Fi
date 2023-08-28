@@ -4,6 +4,7 @@ import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/login.dart';
 import 'package:fi/api/model/response/login.dart';
 import 'package:fi/page/index/Home.dart';
+import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,9 @@ class LoginCard extends StatelessWidget {
       builder: (context, snapshot) {
         if(snapshot.hasData) {
           final data = snapshot.data!;
-          return LoginQR(url: data.url, codeKey: data.qrcodeKey,);
+          return SizedBox(
+              width: SU.rpx(SU.screenHeight / 2),
+              child: LoginQR(url: data.url, codeKey: data.qrcodeKey,));
         }
         return CircularProgressIndicator();
       },

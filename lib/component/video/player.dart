@@ -1,16 +1,17 @@
-import 'package:fi/api/client.dart';
-import 'package:fi/api/model/response/video.dart';
+import 'dart:async';
+
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/util/adaptor.dart';
-import 'package:fi/util/page.dart';
 import 'package:fi/util/player.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 ///播放控件 注入控制器
 class BVideoPlayerController2 extends StatelessWidget {
+  //被sliver header压缩的值
+  final double shrink;
 
-  const BVideoPlayerController2({super.key});
+  const BVideoPlayerController2({super.key, this.shrink = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -18,20 +19,62 @@ class BVideoPlayerController2 extends StatelessWidget {
 
     final videoRatio = controller.value.aspectRatio;
 
+    final widgetVisibility = ValueNotifier<bool>(true);
+    final progress = ValueNotifier<double>(0.0);
+
+    Timer? hideTimer;
+
+    handleProgress() => controller.position.then((value) => progress.value =
+        (value?.inMilliseconds ?? 0.0) /
+            controller.value.duration.inMilliseconds);
+    handleAutoHide() {
+      if(controller.value.isPlaying && widgetVisibility.value && hideTimer == null) {
+        hideTimer = Timer(const Duration(seconds: 3), () {
+          widgetVisibility.value = false;
+          hideTimer = null;
+
+        });
+      }
+    }
+
+    controller.addListener(() {
+      handleProgress();
+      handleAutoHide();
+    });
+
     return SafeArea(
       child: LayoutBuilder(builder: (context, constraint) {
         return Container(
           color: Colors.black,
           child: Stack(children: [
-            Align(
-              alignment: Alignment.center,
-                child: AspectRatio(aspectRatio: videoRatio, child: VideoPlayer(controller))),
-            Align(
-                alignment: Alignment.bottomCenter,
-                heightFactor: 80,
-                child: ProgressController(
-                  controller: controller,
-                ))
+            GestureDetector(
+              onVerticalDragUpdate: (detail) => {},
+              //双击暂停/播放
+              onDoubleTap: () => controller.value.isPlaying
+                  ? controller.pause()
+                  : controller.play(),
+              onTap: () {
+                widgetVisibility.value = !widgetVisibility.value;
+              },
+              child: Align(
+                  alignment: Alignment.center,
+                  child: AspectRatio(
+                      aspectRatio: videoRatio, child: VideoPlayer(controller))),
+            ),
+            ListenableBuilder(
+              builder: (context, _) {
+                return Positioned(
+                    bottom: widgetVisibility.value? 10 : 0,
+                    left: 0,
+                    right: 0,
+                    child: widgetVisibility.value
+                        ? ProgressController(
+                            controller: controller,
+                          )
+                        : ProgressBar(progress: progress));
+              },
+              listenable: widgetVisibility,
+            )
           ]),
         );
       }),
@@ -85,7 +128,7 @@ class ProgressController extends StatelessWidget {
               return FutureBuilder(
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
-                    return PU.loading;
+                    return Container();
                   }
                   final data = snapshot.data!;
                   Future(() {
