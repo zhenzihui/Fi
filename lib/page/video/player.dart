@@ -139,8 +139,6 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   @override
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
-    debugPrint("shrinkOffset: ${shrinkOffset}");
-    debugPrint("overlapsContent: ${overlapsContent}");
     oldShrink = shrinkOffset;
 
     return const BVideoPlayerController2();
