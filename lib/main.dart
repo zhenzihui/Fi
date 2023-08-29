@@ -1,4 +1,5 @@
 import 'package:fi/api/client.dart';
+import 'package:fi/api/model/local/video_zone.dart';
 import 'package:fi/api/model/response/login.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/index/home.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/material.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BClient.init();
+  await AppMetaData.initialize();
   runApp(const MyApp());
 }
 

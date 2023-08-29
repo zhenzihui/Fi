@@ -1,0 +1,71 @@
+//视频分区数据
+
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
+//app的元数据 视频分区等
+class AppMetaData {
+  static List<VideoZoneData>? _videoZoneList;
+
+  static initialize() {
+    rootBundle.loadString("assets/data/video_zone.json").then((value) {
+      _videoZoneList = VideoZoneData.fromJsonList(jsonDecode(value));
+    });
+  }
+}
+
+class VideoZoneData {
+  final String channelId;
+  final String name;
+  final int tid;
+  final String route;
+  final String icon;
+  final String url;
+  final List<VideoSubZoneData> sub;
+
+  VideoZoneData(
+      {required this.channelId,
+      required this.name,
+      required this.tid,
+      required this.route,
+      required this.icon,
+      required this.url,
+      required this.sub});
+
+  static List<VideoZoneData> fromJsonList(dynamic raw) {
+    return (raw as List<dynamic>).map((e) {
+      return VideoZoneData(
+        channelId: e['channelId'],
+        name: e['name'],
+        tid: e['tid'],
+        route: e['route'],
+        icon: e['icon'],
+        url: e['url'],
+        sub: (e['sub'] as List<dynamic>).map((s) {
+          return VideoSubZoneData(
+              subChannelId: s['subChannelId'],
+              name: s['name'],
+              tid: s['tid'],
+              route: s['route'],
+              url: s['url']);
+        }).toList(),
+      );
+    }).toList();
+  }
+}
+
+class VideoSubZoneData {
+  final String subChannelId;
+  final String name;
+  final int tid;
+  final String route;
+  final String url;
+
+  VideoSubZoneData(
+      {required this.subChannelId,
+      required this.name,
+      required this.tid,
+      required this.route,
+      required this.url});
+}
