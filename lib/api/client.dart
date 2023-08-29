@@ -5,6 +5,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:fi/api/api_list.dart';
+import 'package:fi/api/model/request/base.dart';
 import 'package:fi/api/model/request/login.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/base.dart';
@@ -211,13 +212,23 @@ class BClient {
   }
 
   /// 获取视频的关联视频
-  static Future<List<VideoDetail>> getRelatedVideo(GetVideoDetailReq req) {
+  static Future<List<VideoDetail>> getRelatedVideos(GetVideoDetailReq req) {
     return _dio
         .get(ApiVideo.getRelated.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
             compute((message) => message, VideoDetail.fromJsonList(value)));
   }
+
+  ///获取热门视频
+  static Future<PopularVideoList> getPopularVideos(PageReq req) {
+    return _dio
+        .get(ApiVideo.getPopular.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) =>
+        compute((message) => message, PopularVideoList.fromJson(value)));
+  }
+
 
   /// 以下是内部方法
   /// 判断是否有业务错误， 返回data

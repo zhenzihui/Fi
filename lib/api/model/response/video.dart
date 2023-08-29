@@ -183,3 +183,19 @@ class VideoStat {
     );
   }
 }
+
+/// 热门视频接口返回
+class PopularVideoList {
+  ///视频列表
+  final List<VideoDetail> list;
+
+  ///是否没有下一页
+  final bool noMore;
+
+  static PopularVideoList fromJson(dynamic raw) {
+    final list = VideoDetail.fromJsonList(raw['list']);
+    return PopularVideoList(list: list, noMore: raw['no_more']);
+  }
+
+  PopularVideoList({required this.list, required this.noMore});
+}

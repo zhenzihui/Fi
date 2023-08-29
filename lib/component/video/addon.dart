@@ -256,7 +256,7 @@ class VideoRelatedList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ApiBuilder(
-      BClient.getRelatedVideo(GetVideoDetailReq(bvId: bvId)),
+      BClient.getRelatedVideos(GetVideoDetailReq(bvId: bvId)),
       builder: (context, data) {
         return Column(
           children: data

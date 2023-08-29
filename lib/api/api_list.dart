@@ -64,6 +64,11 @@ enum ApiVideo{
     desc: "获取关联视频"
   ),
 
+  getPopular(
+    api: "${HostInfo.api}/x/web-interface/popular",
+    desc: "获取热门视频"
+  ),
+
   ;
 
 

@@ -1,7 +1,7 @@
 /// tab的名字
 enum TabNames {
   pageReCommended(name: "pageRecommended", value: "推荐"),
-  pageHot(name: "pageRecommended", value: "热门"),
+  pagePopular(name: "pagePopular", value: "热门"),
   pageBangumi(name: "pageBangumi", value: "动画"),
   pageTV(name: "pageTV", value: "影视"),
   ;

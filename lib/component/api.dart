@@ -28,8 +28,10 @@ class ApiBuilder<T> extends StatelessWidget {
             return builder(context, snapshot.data as T);
           }
         }
-        return Container(
-            child: onError?.call(context, snapshot.error) ??
-                Text(snapshot.error?.toString() ?? "loading"));
+        return SliverToBoxAdapter(
+          child: Container(
+              child: onError?.call(context, snapshot.error) ??
+                  Text(snapshot.error?.toString() ?? "loading")),
+        );
       });
 }

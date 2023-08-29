@@ -1,6 +1,7 @@
 import 'package:fi/biz/strings.dart';
 import 'package:fi/component/home.dart';
 import 'package:fi/component/login.dart';
+import 'package:fi/page/index/tab_page/popular.dart';
 import 'package:fi/page/index/tab_page/tab_recommended.dart';
 import 'package:flutter/material.dart';
 
@@ -17,7 +18,10 @@ class HomePage extends StatelessWidget {
             Expanded(
               flex: 9,
               child: VideoListTabView(
-                tabs: {Text(TabNames.pageReCommended.value): RecommendedPage()},
+                tabs: {
+                  Text(TabNames.pageReCommended.value): const RecommendedPage(),
+                  Text(TabNames.pagePopular.value): const PopularPage(),
+                },
               ),
             )
           ],
