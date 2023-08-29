@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
               child: VideoListTabView(
                 tabs: {
                   Text(TabNames.pageReCommended.value): const RecommendedPage(),
-                  Text(TabNames.pagePopular.value): const PopularPage(),
+                  Text(TabNames.pagePopular.value): const PopularVideoPage(),
                 },
               ),
             )
