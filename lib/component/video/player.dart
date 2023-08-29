@@ -44,87 +44,85 @@ class BVideoPlayerController2 extends StatelessWidget {
       handleAutoHide();
     });
 
-    return SafeArea(
-      child: LayoutBuilder(builder: (context, constraint) {
-        return Container(
-          color: Colors.black,
-          child: Stack(children: [
-            GestureDetector(
-              onVerticalDragUpdate: (detail) => {},
-              //双击暂停/播放
-              onDoubleTap: () => controller.value.isPlaying
-                  ? controller.pause()
-                  : controller.play(),
-              onTap: () {
-                widgetVisibility.value = !widgetVisibility.value;
-              },
-              child: Align(
-                  alignment: Alignment.center,
-                  child: AspectRatio(
-                      aspectRatio: videoRatio, child: VideoPlayer(controller))),
-            ),
+    return LayoutBuilder(builder: (context, constraint) {
+      return Container(
+        color: Colors.black,
+        child: Stack(children: [
+          GestureDetector(
+            onVerticalDragUpdate: (detail) => {},
+            //双击暂停/播放
+            onDoubleTap: () => controller.value.isPlaying
+                ? controller.pause()
+                : controller.play(),
+            onTap: () {
+              widgetVisibility.value = !widgetVisibility.value;
+            },
+            child: Align(
+                alignment: Alignment.center,
+                child: AspectRatio(
+                    aspectRatio: videoRatio, child: VideoPlayer(controller))),
+          ),
 
-            ///上面的返回按钮
-            Positioned(
-              left: 0,
-              right: 0,
-              child: ListenableBuilder(
-                  listenable: widgetVisibility,
-                  builder: (context, _) {
-                    if (widgetVisibility.value) {
-                      return Container(
-                        decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.black87, Colors.transparent],
-                        )),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            IconButton(
-                              onPressed: () => PU().pop(),
-                              icon: Icon(Icons.arrow_back),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return Container();
-                    }
-                  }),
-            ),
+          ///上面的返回按钮
+          Positioned(
+            left: 0,
+            right: 0,
+            child: ListenableBuilder(
+                listenable: widgetVisibility,
+                builder: (context, _) {
+                  if (widgetVisibility.value) {
+                    return Container(
+                      decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.black87, Colors.transparent],
+                      )),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          IconButton(
+                            onPressed: () => PU().pop(),
+                            icon: const Icon(Icons.arrow_back, color: MyThemeWidget.playerWidget,),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Container();
+                  }
+                }),
+          ),
 
-            ///下面的进度控制器
-            ListenableBuilder(
-              builder: (context, _) {
-                return Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: widgetVisibility.value
-                        ? Container(
-                            decoration: const BoxDecoration(
-                                gradient: LinearGradient(
-                              begin: Alignment.bottomCenter,
-                              end: Alignment.topCenter,
-                              colors: [Colors.black87, Colors.transparent],
-                            )),
-                            child: ProgressController(
-                              controller: controller,
-                            ),
-                          )
-                        : ProgressBar(
-                            progress: progress,
-                            width: MediaQuery.sizeOf(context).width,
-                          ));
-              },
-              listenable: widgetVisibility,
-            )
-          ]),
-        );
-      }),
-    );
+          ///下面的进度控制器
+          ListenableBuilder(
+            builder: (context, _) {
+              return Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: widgetVisibility.value
+                      ? Container(
+                          decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [Colors.black87, Colors.transparent],
+                          )),
+                          child: ProgressController(
+                            controller: controller,
+                          ),
+                        )
+                      : ProgressBar(
+                          progress: progress,
+                          width: MediaQuery.sizeOf(context).width,
+                        ));
+            },
+            listenable: widgetVisibility,
+          )
+        ]),
+      );
+    });
   }
 }
 

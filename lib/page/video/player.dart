@@ -3,7 +3,6 @@ import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/home.dart';
 import 'package:fi/component/video/addon.dart';
 import 'package:fi/component/video/player.dart';
-import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:fi/util/player.dart';
@@ -50,24 +49,26 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          FutureBuilder(
-              future: _initPlayer(data.cId.toString(), data.bvId),
-              builder: (context, snap) {
-                if (snap.connectionState != ConnectionState.done ||
-                    !snap.hasData) {
-                  return PU.loading;
-                }
-                return SliverPersistentHeader(
-                    pinned: true,
-                    floating: true,
-                    delegate: PlayerBoxDelegate(
-                        maxWidth: MediaQuery.sizeOf(context).width,));
-              }),
-          SliverToBoxAdapter(child: VideoAddonInfo2(baseVideo: data))
-        ],
+    return SafeArea(
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            FutureBuilder(
+                future: _initPlayer(data.cId.toString(), data.bvId),
+                builder: (context, snap) {
+                  if (snap.connectionState != ConnectionState.done ||
+                      !snap.hasData) {
+                    return PU.loading;
+                  }
+                  return SliverPersistentHeader(
+                      pinned: true,
+                      floating: true,
+                      delegate: PlayerBoxDelegate(
+                          maxWidth: MediaQuery.sizeOf(context).width,));
+                }),
+            SliverToBoxAdapter(child: VideoAddonInfo2(baseVideo: data))
+          ],
+        ),
       ),
     );
   }

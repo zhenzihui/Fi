@@ -56,6 +56,7 @@ class MyThemeWidget extends InheritedWidget {
   static const Color viewBackground = Colors.white;
   static const Color background = Color(0xffF0F0F0);
   static const Color primary = Color(0xfffb7299);
+  static const Color playerWidget = Colors.white;
 
   Color get debugColor => Colors.primaries[math.Random().nextInt(Colors.primaries.length)];
 

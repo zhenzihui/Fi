@@ -34,8 +34,8 @@ class _VideoListState extends State<VideoList> {
     });
   }
 
-  _getMore() {
-    BClient.getRecommendedVideos()
+  Future _getMore() {
+    return BClient.getRecommendedVideos()
         .then((listData) => listStream.add(listData))
         .onError((DioException error, stackTrace) {
     });
@@ -53,35 +53,38 @@ class _VideoListState extends State<VideoList> {
 
     return Container(
       decoration: const BoxDecoration(color: MyThemeWidget.background),
-      child: CustomScrollView(
-        controller: _scrollCtr,
-        slivers: [
-          StreamBuilder(
-              stream: listStream.stream,
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<BaseVideo>> snapshot) {
-                if (snapshot.connectionState != ConnectionState.active) {
-                  return const SliverToBoxAdapter(child: Divider());
-                }
-                final resList = cacheList..addAll(snapshot.data ?? []);
+      child: RefreshIndicator.adaptive(
+        onRefresh: () => _getMore(),
+        child: CustomScrollView(
+          controller: _scrollCtr,
+          slivers: [
+            StreamBuilder(
+                stream: listStream.stream,
+                builder: (BuildContext context,
+                    AsyncSnapshot<List<BaseVideo>> snapshot) {
+                  if (snapshot.connectionState != ConnectionState.active) {
+                    return const SliverToBoxAdapter(child: Divider());
+                  }
+                  final resList = cacheList..addAll(snapshot.data ?? []);
 
-                final childDelegate = SliverChildBuilderDelegate(
-                  (_, index) {
-                    final current = resList[index];
-                    return VideoListItem(
-                      data: current,
-                      onTap: () => PU().to(VideoPlayerPage(data: current)),
-                    );
-                  },
-                  childCount: resList.length,
-                );
+                  final childDelegate = SliverChildBuilderDelegate(
+                    (_, index) {
+                      final current = resList[index];
+                      return VideoListItem(
+                        data: current,
+                        onTap: () => PU().to(VideoPlayerPage(data: current)),
+                      );
+                    },
+                    childCount: resList.length,
+                  );
 
-                return SliverGrid(
-                  delegate: childDelegate,
-                  gridDelegate: delegate,
-                );
-              })
-        ],
+                  return SliverGrid(
+                    delegate: childDelegate,
+                    gridDelegate: delegate,
+                  );
+                })
+          ],
+        ),
       ),
     );
   }

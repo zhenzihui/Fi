@@ -1,7 +1,7 @@
 import 'package:fi/biz/strings.dart';
 import 'package:fi/component/home.dart';
 import 'package:fi/component/login.dart';
-import 'package:fi/page/index/tab_page/popular.dart';
+import 'package:fi/page/index/tab_page/tab_popular.dart';
 import 'package:fi/page/index/tab_page/tab_recommended.dart';
 import 'package:flutter/material.dart';
 
