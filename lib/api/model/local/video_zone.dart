@@ -6,14 +6,17 @@ import 'package:flutter/services.dart';
 
 //app的元数据 视频分区等
 class AppMetaData {
-  static List<VideoZoneData>? _videoZoneList;
+  static List<VideoZoneData>? _videoZoneChannelList;
 
   static List<VideoZoneData> get videoZoneList =>
-      (_videoZoneList ?? []);
+      (_videoZoneChannelList ?? []).where((element) => element.tid != null).toList();
+
+  static List<VideoZoneData> get videoChannelList =>
+      (_videoZoneChannelList ?? []).where((element) => element.tid == null).toList();
 
   static Future initialize() {
     return rootBundle.loadString("assets/data/video_zone.json").then((value) {
-      _videoZoneList = VideoZoneData.fromJsonList(jsonDecode(value));
+      _videoZoneChannelList = VideoZoneData.fromJsonList(jsonDecode(value));
     });
   }
 }

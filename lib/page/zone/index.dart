@@ -13,8 +13,10 @@ class ZoneIndexPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context);
 
-    final zoneListWithIcon = AppMetaData.videoZoneList.where((e) => e.icon != null).toList();
+    final zoneListWithIcon =
+        AppMetaData.videoZoneList.where((e) => e.icon != null).toList();
 
+    final isLandscape = SU.isLandscapeDynamic(context);
     //分区网格按钮页面
     return ZonePage(
         title: Text(
@@ -23,19 +25,25 @@ class ZoneIndexPage extends StatelessWidget {
         ),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-           crossAxisCount: 4,
-            crossAxisSpacing: SU.rpx(60),
-            mainAxisSpacing: SU.rpx(60)
-          ),
+              crossAxisCount: isLandscape ? 5 : 4,
+              crossAxisSpacing: SU.rpx(isLandscape ? 30 : 40),
+              mainAxisSpacing: SU.rpx(isLandscape ? 10 : 60)),
           itemBuilder: (context, index) {
             final data = zoneListWithIcon[index];
-            final icon =  SVGHelper.loadZoneIcon(data.icon??"", FallbackZoneIcon(text: data.name,));
+            final icon = SVGHelper.loadZoneIcon(
+                data.icon ?? "",
+                FallbackZoneIcon(
+                  text: data.name,
+                ));
             return IconButton(
-              onPressed: () {  },
+              onPressed: () {},
               icon: Column(
                 children: [
                   Expanded(flex: 9, child: icon),
-                  Text(data.name, style: myTheme?.videoTitleText,)
+                  Text(
+                    data.name,
+                    style: myTheme?.videoTitleText,
+                  )
                 ],
               ),
             );
@@ -45,11 +53,11 @@ class ZoneIndexPage extends StatelessWidget {
   }
 }
 
-
 class FallbackZoneIcon extends StatelessWidget {
   final String text;
 
   const FallbackZoneIcon({super.key, required this.text});
+
   @override
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context);
@@ -59,8 +67,11 @@ class FallbackZoneIcon extends StatelessWidget {
         color: myTheme?.debugColor.withOpacity(0.5),
         // border: Border.all(color: Colors.grey, width: 1)
       ),
-      child: Center(child: Text(text, style: myTheme?.videoTitleText,)),
+      child: Center(
+          child: Text(
+        text,
+        style: myTheme?.videoTitleText,
+      )),
     );
   }
-
 }
