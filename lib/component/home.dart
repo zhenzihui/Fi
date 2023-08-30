@@ -63,6 +63,7 @@ class VideoTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TabBar(
+      isScrollable: true,
       controller: controller,
       tabs: tabs,
     );

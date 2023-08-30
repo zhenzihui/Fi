@@ -1,18 +1,3 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:flutter/services.dart';
-
-class VideoZoneData {
-  //分区id
-  final int tid;
-  final int? parentTid;
-
-  //分区名称
-  final String name;
-
-  VideoZoneData(this.tid, this.name, [this.parentTid]);
-}
 
 enum VideoZone {
   douga(1, "动画"),

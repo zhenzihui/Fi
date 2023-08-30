@@ -34,6 +34,15 @@ class ZoneVideoListReq extends PageReq {
   final int rId;
 
   @override
+  ZoneVideoListReq copyWith(int? page, {int? rId, int? pageCount}) {
+    return ZoneVideoListReq(
+      rId ?? this.rId,
+      page ?? super.page,
+      pageCount ?? super.pageCount,
+    );
+  }
+
+  @override
   Map<String, dynamic> toJson() => super.toJson()..addAll({'rid': rId});
 
   ZoneVideoListReq(this.rId, super.page, [super.pageCount]);

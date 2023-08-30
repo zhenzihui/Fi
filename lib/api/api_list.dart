@@ -13,7 +13,11 @@ enum BizCode {
   qrcodeInvalid(code: 86038, desc: "二维码已失效"),
   qrcodeScanned(code: 86090, desc: "二维码已扫码未确认"),
   qrcodeNotScanned(code: 86101, desc: "未扫码"),
+  notFound(code: -404, desc: "啥都木有"),
   unknown(code: 9999, desc: "unknown");
+
+  @override
+  toString() => desc;
 
   const BizCode({required this.code, required this.desc});
 
@@ -67,6 +71,11 @@ enum ApiVideo{
   getPopular(
     api: "${HostInfo.api}/x/web-interface/popular",
     desc: "获取热门视频"
+  ),
+
+  getZoneNewestList(
+    api: "${HostInfo.api}/x/web-interface/dynamic/region",
+    desc: "获取分区最新视频"
   ),
 
   ;

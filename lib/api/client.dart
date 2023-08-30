@@ -231,7 +231,7 @@ class BClient {
   ///获取分区视频
   static Future<ZoneVideoList> getZoneVideos(ZoneVideoListReq req) {
     return _dio
-        .get(ApiVideo.getPopular.api, queryParameters: req.toJson())
+        .get(ApiVideo.getZoneNewestList.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
         compute((message) => message, ZoneVideoList.fromJson(value)));

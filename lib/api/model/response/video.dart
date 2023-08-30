@@ -62,13 +62,7 @@ class VideoDetail {
       required this.pic,
       required this.pubDate});
 
-  // BaseVideo toBaseVideo() => BaseVideo(
-  //     bvId: bvId,
-  //     cId: cId ?? 0,
-  //     title: title,
-  //     pic: pic,
-  //     owner: owner,
-  //     stat: stat);
+
 }
 
 class VideoPlayUrl {
@@ -205,7 +199,9 @@ class ZoneVideoList {
 
 
   static ZoneVideoList fromJson(dynamic raw) {
-    final list = VideoDetail.fromJsonList(raw['archives']);
+    final listRaw = raw['archives'] ?? raw['list'];
+
+    final list = VideoDetail.fromJsonList(listRaw);
     return ZoneVideoList(archives: list);
   }
 

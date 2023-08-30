@@ -1,6 +1,7 @@
 import 'package:fi/api/model/local/video_zone.dart';
 import 'package:fi/component/home.dart';
 import 'package:fi/ext/extendable_theme.dart';
+import 'package:fi/page/zone/common_zone.dart';
 import 'package:fi/page/zone/zone_page.dart';
 import 'package:flutter/material.dart';
 
@@ -27,7 +28,13 @@ class CommonZoneDetailPage extends StatelessWidget {
         style: myTheme?.cardTitle,
       ),
       child: VideoListTabView(
-        tabs: {},
+        tabs: zoneInfo.sub.map((e) {
+          return {
+            Text(e.name ?? "?"): VideoSubZoneListPage(
+              zoneData: e,
+            )
+          };
+        }).reduce((p, n) => p..addAll(n)),
       ),
     );
   }

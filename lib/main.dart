@@ -6,6 +6,7 @@ import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/index/home.dart';
 import 'package:fi/page/route.dart';
 import 'package:fi/page/zone/index.dart';
+import 'package:fi/page/zone/zone_detail.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
@@ -60,12 +61,9 @@ class MyApp extends StatelessWidget {
         switch (arg) {
           case null:
             return Text("起到");
-          case VideoZoneCode.bangumi:
-            return Center(
-              child: Text("一 sxd一"),
-            );
+
           default:
-            return Text("无");
+            return CommonZoneDetailPage(tId: arg.tid??0,);
         }
       default:
         throw 'Route $routeName is not defined';
