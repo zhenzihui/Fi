@@ -1,8 +1,11 @@
 import 'package:fi/api/client.dart';
+import 'package:fi/api/data.dart';
 import 'package:fi/api/model/local/video_zone.dart';
 import 'package:fi/api/model/response/login.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/index/home.dart';
+import 'package:fi/page/route.dart';
+import 'package:fi/page/zone/index.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +34,42 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home: const MyHomePage(title: 'Flutter Demo Home Page'),
+        initialRoute: "/",
+        onGenerateRoute: (RouteSettings settings) {
+          return MaterialPageRoute(builder: (context) {
+            return _buildRoute(
+                context: context,
+                routeName: settings.name,
+                arg: settings.arguments);
+          });
+        },
       ),
     );
+  }
+
+  Widget _buildRoute({
+    required BuildContext context,
+    String? routeName,
+    Object? arg,
+  }) {
+    switch (routeName) {
+      case RouteDefine.pathIndex:
+        return const HomePage();
+      case RouteDefine.pathRoute:
+        arg as VideoZoneCode?;
+        switch (arg) {
+          case null:
+            return Text("起到");
+          case VideoZoneCode.bangumi:
+            return Center(
+              child: Text("一 sxd一"),
+            );
+          default:
+            return Text("无");
+        }
+      default:
+        throw 'Route $routeName is not defined';
+    }
   }
 }
 

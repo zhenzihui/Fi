@@ -1,10 +1,25 @@
+import 'package:fi/api/data.dart';
 import 'package:fi/api/model/local/video_zone.dart';
 import 'package:fi/ext/extendable_theme.dart';
-import 'package:fi/page/zone_page.dart';
+import 'package:fi/page/route.dart';
+import 'package:fi/page/zone/zone_page.dart';
 import 'package:fi/util/adaptor.dart';
+import 'package:fi/util/page.dart';
 import 'package:fi/util/svg.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
+//分区页面跳转参数
+class ZoneArgs {
+  const ZoneArgs(this.zoneCode);
+  final VideoZoneCode zoneCode;
+}
+
+//频道页面跳转参数
+class ChannelArgs {
+  final int channelId;
+
+  ChannelArgs(this.channelId);
+}
 
 class ZoneIndexPage extends StatelessWidget {
   const ZoneIndexPage({super.key});
@@ -36,7 +51,7 @@ class ZoneIndexPage extends StatelessWidget {
                   text: data.name,
                 ));
             return IconButton(
-              onPressed: () {},
+              onPressed: () => PU().toNamed(RouteDefine.pathRoute, VideoZoneCode.findByTid(data.tid)),
               icon: Column(
                 children: [
                   Expanded(flex: 9, child: icon),

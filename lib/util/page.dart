@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 
 /// page util
 class PU {
-  get _navigator => MyNavObserver.getInstance().navigator;
+  NavigatorState? get _navigator => MyNavObserver.getInstance().navigator;
 
   to(Widget destination) {
     _navigator?.push(MaterialPageRoute(builder: (_) => destination));
   }
 
-  offTo(Widget destination) => _navigator
-      .pushReplacement(MaterialPageRoute(builder: (_) => destination));
+  toNamed(String path, Object? args) {
+    _navigator?.pushNamed(path, arguments: args);
+  }
 
-  pop() => _navigator.pop();
+  offTo(Widget destination) => _navigator
+      ?.pushReplacement(MaterialPageRoute(builder: (_) => destination));
+
+  pop() => _navigator?.pop();
 
   static Widget get loading => const SliverToBoxAdapter(child: CircularProgressIndicator());
 

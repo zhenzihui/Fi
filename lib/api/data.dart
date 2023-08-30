@@ -12,7 +12,6 @@ class VideoZoneData {
   final String name;
 
   VideoZoneData(this.tid, this.name, [this.parentTid]);
-
 }
 
 enum VideoZone {
@@ -67,10 +66,11 @@ enum VideoZoneCode {
   sports(tid: 234, channelId: 14, name: "运动"),
   animal(tid: 217, channelId: 18, name: "动物圈"),
   vlog(channelId: 19, name: "VLOG"),
+  funny(tid: 138, channelId: 160001, name: "搞笑"),
   standAlone(tid: 17, channelId: 110001, name: "单机游戏"),
   virtual(channelId: 31, name: "虚拟UP主"),
   love(channelId: 32, name: "公益"),
-  mooc( channelId: 33, name: "公开课"),
+  mooc(channelId: 33, name: "公开课"),
   read(channelId: 26, name: "专栏"),
   live(channelId: 1, name: "直播"),
   activity(channelId: 28, name: "活动"),
@@ -79,8 +79,10 @@ enum VideoZoneCode {
   musicPlus(channelId: 24, name: "新歌热榜"),
   ;
 
-  const VideoZoneCode(
-      {this.tid, required this.channelId, required this.name});
+  static VideoZoneCode? findByTid(int? tid) =>
+      VideoZoneCode.values.where((element) => element.tid == tid).firstOrNull;
+
+  const VideoZoneCode({this.tid, required this.channelId, required this.name});
 
   //分区id
   final int? tid;
