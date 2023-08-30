@@ -1,5 +1,7 @@
 import 'package:fi/ext/extendable_theme.dart';
+import 'package:fi/page/zone/index.dart';
 import 'package:fi/util/adaptor.dart';
+import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -41,7 +43,7 @@ class TopBarHome extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(onPressed: () => {}, icon: Icon(Icons.gamepad)),
+                  IconButton(onPressed: () => {PU().to(const ZoneIndexPage())}, icon: Icon(Icons.gamepad)),
                   IconButton(onPressed: () => {}, icon: Icon(Icons.mail)),
                 ],
               ))

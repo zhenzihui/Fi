@@ -14,7 +14,7 @@ class HomePage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            TopBarHome(),
+            const TopBarHome(),
             Expanded(
               flex: 9,
               child: VideoListTabView(
@@ -32,8 +32,10 @@ class HomePage extends StatelessWidget {
 }
 
 class LoginPage extends StatelessWidget {
+  const LoginPage({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: LoginCard());
+    return const Scaffold(body: LoginCard());
   }
 }

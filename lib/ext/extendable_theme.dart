@@ -26,6 +26,8 @@ class MyThemeWidget extends InheritedWidget {
   final TextStyle ownerInfoText;
   //视频标题
   final TextStyle videoTitleText;
+  //页面标题
+  final TextStyle pageTitleText;
   //视频简介
   final TextStyle videoDescText;
   //视频控件文字
@@ -48,6 +50,7 @@ class MyThemeWidget extends InheritedWidget {
 
   /// 定义布局
   final double paddingDefault = SU.rpx(5);
+  final double paddingLarge = SU.rpx(50);
   final double gridSpacing = SU.rpx(6.0);
 
   /// 定义布局 end
@@ -67,6 +70,7 @@ class MyThemeWidget extends InheritedWidget {
     required child,
     this.pageTitle = const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
     this.cardTitle = const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+    this.pageTitleText = const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     this.categoryTitle =
         const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
     this.priceText = const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),

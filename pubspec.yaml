@@ -36,6 +36,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   qr_flutter: ^4.1.0
+  flutter_svg: ^2.0.7
+
 
   # the follwing dependencies is for api calling
   crypto: ^3.0.3

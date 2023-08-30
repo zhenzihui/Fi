@@ -8,20 +8,23 @@ import 'package:flutter/services.dart';
 class AppMetaData {
   static List<VideoZoneData>? _videoZoneList;
 
-  static initialize() {
-    rootBundle.loadString("assets/data/video_zone.json").then((value) {
+  static List<VideoZoneData> get videoZoneList =>
+      (_videoZoneList ?? []);
+
+  static Future initialize() {
+    return rootBundle.loadString("assets/data/video_zone.json").then((value) {
       _videoZoneList = VideoZoneData.fromJsonList(jsonDecode(value));
     });
   }
 }
 
 class VideoZoneData {
-  final String channelId;
+  final int? channelId;
   final String name;
-  final int tid;
-  final String route;
-  final String icon;
-  final String url;
+  final int? tid;
+  final String? route;
+  final String? icon;
+  final String? url;
   final List<VideoSubZoneData> sub;
 
   VideoZoneData(
@@ -42,25 +45,27 @@ class VideoZoneData {
         route: e['route'],
         icon: e['icon'],
         url: e['url'],
-        sub: (e['sub'] as List<dynamic>).map((s) {
-          return VideoSubZoneData(
-              subChannelId: s['subChannelId'],
-              name: s['name'],
-              tid: s['tid'],
-              route: s['route'],
-              url: s['url']);
-        }).toList(),
+        sub: e['sub'] == null
+            ? []
+            : (e['sub'] as List<dynamic>).map((s) {
+                return VideoSubZoneData(
+                    subChannelId: s['subChannelId'],
+                    name: s['name'],
+                    tid: s['tid'],
+                    route: s['route'],
+                    url: s['url']);
+              }).toList(),
       );
     }).toList();
   }
 }
 
 class VideoSubZoneData {
-  final String subChannelId;
-  final String name;
-  final int tid;
-  final String route;
-  final String url;
+  final int? subChannelId;
+  final String? name;
+  final int? tid;
+  final String? route;
+  final String? url;
 
   VideoSubZoneData(
       {required this.subChannelId,
