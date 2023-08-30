@@ -51,7 +51,7 @@ class ZoneIndexPage extends StatelessWidget {
                   text: data.name,
                 ));
             return IconButton(
-              onPressed: () => PU().toNamed(RouteDefine.pathRoute, VideoZoneCode.findByTid(data.tid)),
+              onPressed: () => PU().toNamed(RouteDefine.pathRoute, VideoZoneCode.findByTid(data.tId)),
               icon: Column(
                 children: [
                   Expanded(flex: 9, child: icon),

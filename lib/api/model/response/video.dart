@@ -1,4 +1,3 @@
-import 'package:fi/api/model/response/home.dart';
 import 'package:flutter/material.dart';
 
 /// 获取视频详情的data
@@ -63,13 +62,13 @@ class VideoDetail {
       required this.pic,
       required this.pubDate});
 
-  BaseVideo toBaseVideo() => BaseVideo(
-      bvId: bvId,
-      cId: cId ?? 0,
-      title: title,
-      pic: pic,
-      owner: owner,
-      stat: stat);
+  // BaseVideo toBaseVideo() => BaseVideo(
+  //     bvId: bvId,
+  //     cId: cId ?? 0,
+  //     title: title,
+  //     pic: pic,
+  //     owner: owner,
+  //     stat: stat);
 }
 
 class VideoPlayUrl {
@@ -198,4 +197,17 @@ class PopularVideoList {
   }
 
   PopularVideoList({required this.list, required this.noMore});
+}
+/// 分区视频接口返回
+class ZoneVideoList {
+  ///视频列表
+  final List<VideoDetail> archives;
+
+
+  static ZoneVideoList fromJson(dynamic raw) {
+    final list = VideoDetail.fromJsonList(raw['archives']);
+    return ZoneVideoList(archives: list);
+  }
+
+  ZoneVideoList({required this.archives});
 }

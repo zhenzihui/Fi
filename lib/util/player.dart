@@ -15,6 +15,11 @@ class UniPlayerController {
     });
   }
 
+  static dispose() {
+    _instance?.dispose();
+    _instance = null;
+  }
+
   static VideoPlayerController getInstance() => _instance!;
 
 }

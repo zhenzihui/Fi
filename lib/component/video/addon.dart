@@ -1,6 +1,5 @@
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/video.dart';
-import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/api.dart';
 import 'package:fi/component/icon/operation.dart';
@@ -51,7 +50,7 @@ class OwnerInfo extends StatelessWidget {
 
 //视频下面的详情
 class VideoAddonInfo extends StatelessWidget {
-  final BaseVideo baseVideo;
+  final VideoDetail baseVideo;
   final ScrollController controller;
 
   const VideoAddonInfo({super.key, required this.baseVideo, required this.controller});
@@ -89,7 +88,7 @@ class VideoAddonInfo extends StatelessWidget {
   }
 }
 class VideoAddonInfo2 extends StatelessWidget {
-  final BaseVideo baseVideo;
+  final VideoDetail baseVideo;
 
   const VideoAddonInfo2({super.key, required this.baseVideo});
 
@@ -263,7 +262,7 @@ class VideoRelatedList extends StatelessWidget {
               .map((e) => VideoRelatedListItem(
                     detail: e,
                     onTap: () => PU().offTo(VideoPlayerPage(
-                      data: e.toBaseVideo(),
+                      data: e,
                     )),
                   ))
               .toList(),

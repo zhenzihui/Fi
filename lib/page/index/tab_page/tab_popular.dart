@@ -94,7 +94,7 @@ class _PopularVideoListViewState extends State<PopularVideoListView> {
                     return VideoRelatedListItem(
                       detail: data,
                       onTap: () =>
-                          PU().to(VideoPlayerPage(data: data.toBaseVideo())),
+                          PU().to(VideoPlayerPage(data: data)),
                     );
                   }, childCount: showList.length));
                 })

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:fi/api/client.dart';
-import 'package:fi/api/model/response/home.dart';
+import 'package:fi/api/model/response/video.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/video/player.dart';
 import 'package:fi/util/adaptor.dart';
@@ -18,9 +18,9 @@ class VideoList extends StatefulWidget {
 }
 
 class _VideoListState extends State<VideoList> {
-  final listStream = StreamController<List<BaseVideo>>();
+  final listStream = StreamController<List<VideoDetail>>();
   final _scrollCtr = ScrollController();
-  final List<BaseVideo> cacheList = [];
+  final List<VideoDetail> cacheList = [];
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _VideoListState extends State<VideoList> {
             StreamBuilder(
                 stream: listStream.stream,
                 builder: (BuildContext context,
-                    AsyncSnapshot<List<BaseVideo>> snapshot) {
+                    AsyncSnapshot<List<VideoDetail>> snapshot) {
                   if (snapshot.connectionState != ConnectionState.active) {
                     return const SliverToBoxAdapter(child: Divider());
                   }
@@ -92,7 +92,7 @@ class _VideoListState extends State<VideoList> {
 
 // 单个视频列表item
 class VideoListItem extends StatelessWidget {
-  final BaseVideo data;
+  final VideoDetail data;
   final VoidCallback? onTap;
 
   const VideoListItem({super.key, required this.data, this.onTap});

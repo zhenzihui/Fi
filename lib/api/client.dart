@@ -9,7 +9,6 @@ import 'package:fi/api/model/request/base.dart';
 import 'package:fi/api/model/request/login.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/base.dart';
-import 'package:fi/api/model/response/home.dart';
 import 'package:fi/api/model/response/login.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/page/index/home.dart';
@@ -185,11 +184,11 @@ class BClient {
   }
 
   /// 查询推荐
-  static Future<List<BaseVideo>> getRecommendedVideos() {
+  static Future<List<VideoDetail>> getRecommendedVideos() {
     return _dio
             .get(ApiHome.getRecommendedVideos.api)
             .then((value) => _handleJsonResponse(value))
-            .then((data) => BaseVideo.fromJsonList(
+            .then((data) => VideoDetail.fromJsonList(
                 _handleDataAsList(data, HostInfo.listKeyItem)))
         // .onError((error, stackTrace) { throw error!; })
         ;
@@ -227,6 +226,15 @@ class BClient {
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
         compute((message) => message, PopularVideoList.fromJson(value)));
+  }
+
+  ///获取分区视频
+  static Future<ZoneVideoList> getZoneVideos(ZoneVideoListReq req) {
+    return _dio
+        .get(ApiVideo.getPopular.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) =>
+        compute((message) => message, ZoneVideoList.fromJson(value)));
   }
 
 

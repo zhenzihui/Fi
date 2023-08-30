@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+
 class PageReq {
   final int page;
   final int? pageCount;
@@ -7,5 +9,5 @@ class PageReq {
 
   PageReq(this.page, [this.pageCount = 20]);
 
-  toJson() => {'pn': page, 'ps': pageCount};
+  @mustCallSuper Map<String, dynamic> toJson() => {'pn': page, 'ps': pageCount};
 }

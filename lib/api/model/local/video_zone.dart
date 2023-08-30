@@ -9,10 +9,10 @@ class AppMetaData {
   static List<VideoZoneData>? _videoZoneChannelList;
 
   static List<VideoZoneData> get videoZoneList =>
-      (_videoZoneChannelList ?? []).where((element) => element.tid != null).toList();
+      (_videoZoneChannelList ?? []).where((element) => element.tId != null).toList();
 
   static List<VideoZoneData> get videoChannelList =>
-      (_videoZoneChannelList ?? []).where((element) => element.tid == null).toList();
+      (_videoZoneChannelList ?? []).where((element) => element.tId == null).toList();
 
   static Future initialize() {
     return rootBundle.loadString("assets/data/video_zone.json").then((value) {
@@ -24,7 +24,7 @@ class AppMetaData {
 class VideoZoneData {
   final int? channelId;
   final String name;
-  final int? tid;
+  final int? tId;
   final String? route;
   final String? icon;
   final String? url;
@@ -33,7 +33,7 @@ class VideoZoneData {
   VideoZoneData(
       {required this.channelId,
       required this.name,
-      required this.tid,
+      required this.tId,
       required this.route,
       required this.icon,
       required this.url,
@@ -44,7 +44,7 @@ class VideoZoneData {
       return VideoZoneData(
         channelId: e['channelId'],
         name: e['name'],
-        tid: e['tid'],
+        tId: e['tid'],
         route: e['route'],
         icon: e['icon'],
         url: e['url'],
@@ -54,7 +54,7 @@ class VideoZoneData {
                 return VideoSubZoneData(
                     subChannelId: s['subChannelId'],
                     name: s['name'],
-                    tid: s['tid'],
+                    tId: s['tid'],
                     route: s['route'],
                     url: s['url']);
               }).toList(),
@@ -66,14 +66,14 @@ class VideoZoneData {
 class VideoSubZoneData {
   final int? subChannelId;
   final String? name;
-  final int? tid;
+  final int? tId;
   final String? route;
   final String? url;
 
   VideoSubZoneData(
       {required this.subChannelId,
       required this.name,
-      required this.tid,
+      required this.tId,
       required this.route,
       required this.url});
 }

@@ -1,6 +1,6 @@
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/video.dart';
-import 'package:fi/api/model/response/home.dart';
+import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/video/addon.dart';
 import 'package:fi/component/video/player.dart';
 import 'package:fi/util/adaptor.dart';
@@ -10,9 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
-//播放器页面
+///播放器页面
 class VideoPlayerPage extends StatefulWidget {
-  final BaseVideo data;
+  final VideoDetail data;
 
   const VideoPlayerPage({super.key, required this.data});
 
@@ -22,7 +22,7 @@ class VideoPlayerPage extends StatefulWidget {
 
 
 class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
-  late BaseVideo data = widget.data;
+  late VideoDetail data = widget.data;
 
   Future<VideoPlayerController> _initPlayer(String cId, String bvId) {
     return BClient.getVideoPlayUrl(GetVideoPlayUrlReq(cId: cId, bvId: bvId))
@@ -43,6 +43,7 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
   @override
   void dispose() {
     super.dispose();
+    UniPlayerController.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
         overlays: SystemUiOverlay.values);
   }
