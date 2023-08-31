@@ -70,14 +70,17 @@ class VideoAddonInfo2 extends StatelessWidget {
               theme: myTheme,
               data: data,
             ),
-            SizedBox(height: SU.rpx(20),),
-
+            SizedBox(
+              height: SU.rpx(20),
+            ),
             VideoOptionRow(
               stat: data.stat,
             ),
             Divider(),
-            VideoRelatedList(
-              bvId: data.bvId,
+            Expanded(
+              child: VideoRelatedList(
+                bvId: data.bvId,
+              ),
             )
           ],
         ),
@@ -219,15 +222,14 @@ class VideoRelatedList extends StatelessWidget {
     return ApiBuilder(
       BClient.getRelatedVideos(GetVideoDetailReq(bvId: bvId)),
       builder: (context, data) {
-        return Column(
-          children: data
-              .map((e) => VideoRelatedListItem(
-                    detail: e,
-                    onTap: () => PU().offTo(VideoPlayerPage(
-                      data: e,
-                    )),
-                  ))
-              .toList(),
+        return ListView.builder(
+          itemCount: data.length,
+          itemBuilder: (ctx, index) => VideoRelatedListItem(
+            detail: data[index],
+            onTap: () => PU().offTo(VideoPlayerPage(
+              data: data[index],
+            )),
+          ),
         );
       },
     );
@@ -250,7 +252,7 @@ class VideoRelatedListItem extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: SizedBox(
-          height: SU.rpx(200),
+          height: 100,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [

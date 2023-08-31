@@ -14,11 +14,7 @@ class MyThemeWidget extends InheritedWidget {
   // category 标题
   final TextStyle categoryTitle;
 
-  // 价格
-  final TextStyle priceText;
 
-  // 醒目价格
-  final TextStyle specialPriceText;
 
   // up名字
   final TextStyle ownerNameText;
@@ -32,6 +28,8 @@ class MyThemeWidget extends InheritedWidget {
   final TextStyle videoDescText;
   //视频控件文字
   final TextStyle videoWidgetText;
+
+  final TextStyle commentUserText;
 
   // 单个view样式
   final BoxDecoration viewDeco;
@@ -59,7 +57,9 @@ class MyThemeWidget extends InheritedWidget {
   static const Color viewBackground = Colors.white;
   static const Color background = Color(0xffF0F0F0);
   static const Color primary = Color(0xfffb7299);
+  static const Color link = Color.fromRGBO(93, 121, 214, 1);
   static const Color playerWidget = Colors.white;
+  static const Color replyBackground = Color.fromRGBO(247, 247, 247, 1);
 
   Color get debugColor => Colors.primaries[math.Random().nextInt(Colors.primaries.length)];
 
@@ -73,14 +73,12 @@ class MyThemeWidget extends InheritedWidget {
     this.pageTitleText = const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
     this.categoryTitle =
         const TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-    this.priceText = const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-    this.specialPriceText = const TextStyle(
-        fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
     this.ownerInfoText = const TextStyle(fontSize: 5, color: Colors.white10),
     this.ownerNameText = const TextStyle(fontSize: 10, color: primary),
     this.videoDescText = const TextStyle(fontSize: 6, color: Colors.white10),
     this.videoTitleText = const TextStyle(fontSize: 10),
     this.videoWidgetText = const TextStyle(fontSize: 10, color: Colors.white70),
+    this.commentUserText = const TextStyle(fontSize: 10, color: Colors.black38, )
   })  : smallBorderRadius = BorderRadius.circular(5),
         mediumBorderRadius = BorderRadius.circular(10),
         largeBorderRadius = BorderRadius.circular(20),
@@ -93,8 +91,8 @@ class MyThemeWidget extends InheritedWidget {
   bool updateShouldNotify(covariant MyThemeWidget oldWidget) {
     return oldWidget.pageTitle != pageTitle ||
         oldWidget.cardTitle != cardTitle ||
-        oldWidget.categoryTitle != categoryTitle ||
-        oldWidget.priceText != priceText;
+        oldWidget.categoryTitle != categoryTitle
+    ;
   }
 
   static MyThemeWidget? of(BuildContext context) {

@@ -29,7 +29,7 @@ class Reply {
   List<Reply>? _replies;
   ReplyControl? replyControl;
 
-  get replies => _replies ?? [];
+  List<Reply> get replies => _replies ?? [];
 
   get like => _like ?? 0;
 
