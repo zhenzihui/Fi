@@ -6,9 +6,11 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:fi/api/api_list.dart';
 import 'package:fi/api/model/request/base.dart';
+import 'package:fi/api/model/request/comment.dart';
 import 'package:fi/api/model/request/login.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/base.dart';
+import 'package:fi/api/model/response/comment/comment.dart';
 import 'package:fi/api/model/response/login.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/page/index/home.dart';
@@ -35,12 +37,12 @@ class LoggerInterceptor extends InterceptorsWrapper {
       debugPrint(
           "\n================================= CURL结束 =================================");
 
-      if (options.data != null) {
-        //不是表单数据输出数据
-        if (options.data is! FormData) {
-          debugPrint(json.encode(options.data));
-        }
-      }
+      // if (options.data != null) {
+      //   //不是表单数据输出数据
+      //   if (options.data is! FormData) {
+      //     debugPrint(json.encode(options.data));
+      //   }
+      // }
       handler.next(options);
     }
   }
@@ -54,9 +56,9 @@ class LoggerInterceptor extends InterceptorsWrapper {
           "\n================================= 响应数据开始 =================================");
       debugPrint("uri = ${response.realUri}");
       debugPrint("code = ${response.statusCode}");
-      if (response.data != null && response.data is Map) {
-        debugPrint("data = ${json.encode(response.data)}");
-      }
+      // if (response.data != null && response.data is Map) {
+      //   debugPrint("data = ${json.encode(response.data)}");
+      // }
       debugPrint(
           "================================= 响应数据结束 =================================\n");
       handler.next(response);
@@ -235,6 +237,15 @@ class BClient {
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
         compute((message) => message, ZoneVideoList.fromJson(value)));
+  }
+
+  ///获取稿件的评论
+  static Future<CommentListResp> getComments(GetCommentListReq req) {
+    return _dio
+        .get(ApiComment.getComments.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) =>
+        compute((message) => message, CommentListResp.fromJson(value)));
   }
 
 

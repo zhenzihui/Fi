@@ -3,6 +3,7 @@ import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/video/addon.dart';
 import 'package:fi/component/video/player.dart';
+import 'package:fi/page/video/video.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:fi/util/player.dart';
@@ -19,7 +20,6 @@ class VideoPlayerPage extends StatefulWidget {
   @override
   State<VideoPlayerPage> createState() => _VideoPlayerPageState2();
 }
-
 
 class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
   late VideoDetail data = widget.data;
@@ -65,9 +65,10 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
                       pinned: true,
                       floating: true,
                       delegate: PlayerBoxDelegate(
-                          maxWidth: MediaQuery.sizeOf(context).width,));
+                        maxWidth: MediaQuery.sizeOf(context).width,
+                      ));
                 }),
-            SliverToBoxAdapter(child: VideoAddonInfo2(baseVideo: data))
+            SliverFillRemaining(child: VideoInfoPage(detail: data))
           ],
         ),
       ),
@@ -77,7 +78,8 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
 
 class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   final double maxWidth;
-  late VideoPlayerController videoController = UniPlayerController.getInstance();
+  late VideoPlayerController videoController =
+      UniPlayerController.getInstance();
   double oldShrink = -1;
 
   PlayerBoxDelegate({
@@ -95,7 +97,8 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxWidth / videoController.value.aspectRatio;
 
   @override
-  double get minExtent => videoController.value.isPlaying? maxExtent: SU.rpx(200);
+  double get minExtent =>
+      videoController.value.isPlaying ? maxExtent : SU.rpx(200);
 
   @override
   bool shouldRebuild(covariant PlayerBoxDelegate oldDelegate) {

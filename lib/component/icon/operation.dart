@@ -1,4 +1,4 @@
-import 'package:fi/util/string.dart';
+import 'package:fi/util/util.dart';
 import 'package:flutter/cupertino.dart';
 
 //带图标和文字的按钮

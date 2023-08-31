@@ -36,6 +36,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(body: LoginCard());
+    return const Scaffold(body: SafeArea(child: Center(child: LoginCard())));
   }
 }

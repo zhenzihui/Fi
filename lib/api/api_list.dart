@@ -87,3 +87,23 @@ enum ApiVideo{
   final String desc;
 }
 
+///评论相关接口
+enum ApiComment{
+
+  /// test: BV16X4y1x7q6
+  getComments(
+      api: "${HostInfo.api}/x/v2/reply/main",
+      desc: "视频详细信息",
+  ),
+
+  ;
+
+
+  const ApiComment({required this.api, required this.desc, this.type});
+
+  final String api;
+  final String desc;
+  final String? type;
+}
+
+

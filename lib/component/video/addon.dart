@@ -49,44 +49,6 @@ class OwnerInfo extends StatelessWidget {
 }
 
 //视频下面的详情
-class VideoAddonInfo extends StatelessWidget {
-  final VideoDetail baseVideo;
-  final ScrollController controller;
-
-  const VideoAddonInfo({super.key, required this.baseVideo, required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    final myTheme = MyThemeWidget.of(context);
-    return Padding(
-      padding: EdgeInsets.only(
-          left: myTheme?.paddingDefault ?? 0,
-          right: myTheme?.paddingDefault ?? 0),
-      child: ApiBuilder(
-        BClient.getVideoDetail(baseVideo.bvId),
-        builder: (context, data) => ListView(
-          controller: controller,
-          children: [
-            OwnerInfo(owner: baseVideo.owner),
-            VideoDesc(
-              theme: myTheme,
-              data: data,
-            ),
-            SizedBox(height: SU.rpx(20),),
-
-            VideoOptionRow(
-              stat: data.stat,
-            ),
-            Divider(),
-            VideoRelatedList(
-              bvId: data.bvId,
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
 class VideoAddonInfo2 extends StatelessWidget {
   final VideoDetail baseVideo;
 

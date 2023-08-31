@@ -58,11 +58,6 @@ class _ZoneVideoListViewState extends State<ZoneVideoListView> {
     return BClient.getZoneVideos(page).then((value) {
       showList.addAll(value.archives);
       pageStream.add("n");
-    }).onError((error, stackTrace) {
-      debugPrint("$error");
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //     duration: Duration(milliseconds: 300),
-      //     content: ErrorPage(message: error.toString())));
     });
   }
 

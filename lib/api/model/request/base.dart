@@ -9,5 +9,5 @@ class PageReq {
 
   PageReq(this.page, [this.pageCount = 20]);
 
-  @mustCallSuper Map<String, dynamic> toJson() => {'pn': page, 'ps': pageCount};
+  Map<String, dynamic> toJson() => {'pn': page, 'ps': pageCount};
 }
