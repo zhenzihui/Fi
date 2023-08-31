@@ -60,9 +60,9 @@ class _ZoneVideoListViewState extends State<ZoneVideoListView> {
       pageStream.add("n");
     }).onError((error, stackTrace) {
       debugPrint("$error");
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: Duration(milliseconds: 300),
-          content: ErrorPage(message: error.toString())));
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //     duration: Duration(milliseconds: 300),
+      //     content: ErrorPage(message: error.toString())));
     });
   }
 

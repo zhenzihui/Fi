@@ -247,6 +247,14 @@ class BClient {
     final biz = await compute((message) => message,
         BizResponse.fromJson(response.data as Map<String, dynamic>));
     if (biz.code != BizCode.success.code) {
+      final ctx = MyNavObserver.getInstance().navigator?.overlay?.context;
+      if(ctx != null) {
+       return Future(() {
+          ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
+              duration: const Duration(milliseconds: 300),
+              content: ErrorPage(message: biz.message)));
+        });
+      }
       return Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
           orElse: () => BizCode.unknown));
     }
