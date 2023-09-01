@@ -16,7 +16,6 @@ class HomePage extends StatelessWidget {
           children: [
             const TopBarHome(),
             Expanded(
-              flex: 9,
               child: VideoListTabView(
                 tabs: {
                   Text(TabNames.pageReCommended.value, textAlign: TextAlign.center,): const RecommendedPage(),
