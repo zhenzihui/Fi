@@ -43,7 +43,9 @@ class TopBarHome extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  IconButton(onPressed: () => {PU().to(const ZoneIndexPage())}, icon: Icon(Icons.gamepad)),
+                  IconButton(
+                      onPressed: () => {PU().to(const ZoneIndexPage())},
+                      icon: Icon(Icons.gamepad)),
                   IconButton(onPressed: () => {}, icon: Icon(Icons.mail)),
                 ],
               ))
@@ -62,19 +64,29 @@ class VideoTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TabBar(
-      isScrollable: true,
-      controller: controller,
-      tabs: tabs,
-    );
+    return LayoutBuilder(builder: (context, constraint) {
+      return TabBar(
+        isScrollable: true,
+        controller: controller,
+        tabs: tabs
+            .map((e) => SizedBox(
+                width: tabs.length < 3
+                    ? constraint.maxWidth / (tabs.length + 1)
+                    : constraint.maxWidth / tabs.length,
+                child: e))
+            .toList(),
+      );
+    });
   }
 }
 
 /// 首页的tabbar + tabview
 class VideoListTabView extends StatefulWidget {
   final Map<Widget, Widget> tabs;
+  final bool scrollable;
 
-  const VideoListTabView({super.key, required this.tabs});
+  const VideoListTabView(
+      {super.key, required this.tabs, this.scrollable = true});
 
   @override
   State<VideoListTabView> createState() => _VideoListTabViewState();
@@ -101,6 +113,7 @@ class _VideoListTabViewState extends State<VideoListTabView>
       children: [
         VideoTabBar(tabs: widget.tabs.keys.toList(), controller: _tabCtr),
         Expanded(
+          flex: 9,
           child: TabBarView(
             controller: _tabCtr,
             children: widget.tabs.values.toList(),

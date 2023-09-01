@@ -1,7 +1,6 @@
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/video.dart';
-import 'package:fi/component/video/addon.dart';
 import 'package:fi/component/video/player.dart';
 import 'package:fi/page/video/video.dart';
 import 'package:fi/util/adaptor.dart';
@@ -50,27 +49,25 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            FutureBuilder(
-                future: _initPlayer(data.cId.toString(), data.bvId),
-                builder: (context, snap) {
-                  if (snap.connectionState != ConnectionState.done ||
-                      !snap.hasData) {
-                    return PU.loading;
-                  }
-                  return SliverPersistentHeader(
-                      pinned: true,
-                      floating: true,
-                      delegate: PlayerBoxDelegate(
-                        maxWidth: MediaQuery.sizeOf(context).width,
-                      ));
-                }),
-            SliverFillRemaining(child: VideoInfoPage(detail: data))
-          ],
-        ),
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          FutureBuilder(
+              future: _initPlayer(data.cId.toString(), data.bvId),
+              builder: (context, snap) {
+                if (snap.connectionState != ConnectionState.done ||
+                    !snap.hasData) {
+                  return PU.loading;
+                }
+                return SliverPersistentHeader(
+                    pinned: true,
+                    floating: true,
+                    delegate: PlayerBoxDelegate(
+                      maxWidth: MediaQuery.sizeOf(context).width,
+                    ));
+              }),
+          SliverFillRemaining(child: VideoInfoPage(detail: data))
+        ],
       ),
     );
   }
@@ -90,7 +87,7 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   Widget build(
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     oldShrink = shrinkOffset;
-    return const BVideoPlayerController2();
+    return BVideoPlayerController2();
   }
 
   @override

@@ -181,7 +181,11 @@ class SimpleReplyCard extends StatelessWidget {
     final myTheme = MyThemeWidget.of(context);
 
     return GestureDetector(
-      onTap: () => {PU().to(ReplyDetailComponent())},
+      onTap: () => {
+        showModalBottomSheet(
+            context: context,
+            builder: (context) => FlutterLogo())
+      },
       child: Container(
         padding: EdgeInsets.all(myTheme?.paddingDefault ?? 0),
         decoration: BoxDecoration(

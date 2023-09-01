@@ -19,8 +19,8 @@ class HomePage extends StatelessWidget {
               flex: 9,
               child: VideoListTabView(
                 tabs: {
-                  Text(TabNames.pageReCommended.value): const RecommendedPage(),
-                  Text(TabNames.pagePopular.value): const PopularVideoPage(),
+                  Text(TabNames.pageReCommended.value, textAlign: TextAlign.center,): const RecommendedPage(),
+                  Text(TabNames.pagePopular.value, textAlign: TextAlign.center,): const PopularVideoPage(),
                 },
               ),
             )
