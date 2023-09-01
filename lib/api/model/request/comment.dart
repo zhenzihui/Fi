@@ -30,3 +30,32 @@ class GetCommentListReq extends PageReq {
   GetCommentListReq(this.oId, super.page, super.pageCount,
       {this.type = 1, this.mode = 1});
 }
+
+///获取评论的回复请求
+///{
+///         "pn": "int: 页码",
+///         "ps": "const int: 10",
+///         "type": "",
+///         "oid": "int: id",
+///         "root": "int: 根评论 ID"
+///       }
+///
+///
+class GetReplyListReq extends PageReq {
+  GetReplyListReq(super.page,
+      {required this.root, required this.oId, required this.type});
+
+  final int root;
+  final dynamic oId;
+  final int type;
+
+  @override
+  GetReplyListReq copyWith(int? page,
+          {int? pageCount, dynamic oId, int? root}) =>
+      GetReplyListReq(page ?? this.page,
+          root: root ?? this.root, oId: oId ?? this.oId, type: type);
+
+  @override
+  Map<String, dynamic> toJson() =>
+      super.toJson()..addAll({"root": root, "oid": oId, "type": type});
+}

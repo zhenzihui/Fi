@@ -6,6 +6,7 @@ import 'package:fi/api/model/response/comment/comment.dart';
 import 'package:fi/component/common/text.dart';
 import 'package:fi/component/video/reply.dart';
 import 'package:fi/ext/extendable_theme.dart';
+import 'package:fi/page/comment/comment_detail.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +15,10 @@ import 'package:flutter/material.dart';
 class VideoCommentComponent extends StatefulWidget {
   final dynamic oId;
   final int commentType;
+  final Function(int replyId)? onItemTap;
 
-  const VideoCommentComponent({super.key, this.oId, this.commentType = 1});
+  const VideoCommentComponent(
+      {super.key, this.oId, this.commentType = 1, this.onItemTap});
 
   @override
   State<VideoCommentComponent> createState() => _VideoCommentComponentState();
@@ -82,7 +85,10 @@ class _VideoCommentComponentState extends State<VideoCommentComponent> {
                     // itemExtent: SU.rpx(100),
                     itemBuilder: (context, index) {
                       final data = showList[index];
-                      return ReplyMessage(reply: data);
+                      return ReplyMessage(
+                        reply: data,
+                        onTapReply: () => {widget.onItemTap?.call(data.rpId!)},
+                      );
                     });
               }),
           onRefresh: () => _refresh()),
@@ -93,8 +99,9 @@ class _VideoCommentComponentState extends State<VideoCommentComponent> {
 /// 最外层
 class ReplyMessage extends StatelessWidget {
   final Reply reply;
+  final VoidCallback? onTapReply;
 
-  const ReplyMessage({super.key, required this.reply});
+  const ReplyMessage({super.key, required this.reply, this.onTapReply});
 
   @override
   Widget build(BuildContext context) {
@@ -151,13 +158,14 @@ class ReplyMessage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text(
-                    reply.content?.message ?? "",
-                    maxLines: reply.content?.maxLine,
-                  ),
+                  ReplyContent(content: reply.content?.message ?? "", maxLines: reply.content?.maxLine),
+
                   reply.replies.isEmpty
                       ? Container()
-                      : SimpleReplyCard(reply: reply)
+                      : SimpleReplyCard(
+                          reply: reply,
+                          onTap: onTapReply,
+                        )
                 ],
               ),
             )
@@ -169,23 +177,46 @@ class ReplyMessage extends StatelessWidget {
   }
 }
 
+/// 评论的文本 控制最大行数
+class ReplyContent extends StatelessWidget {
+  final expanded = ValueNotifier(false);
+  final int? maxLines;
+  final String content;
+
+  ReplyContent({super.key, required this.content, this.maxLines});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => expanded.value = !expanded.value,
+      child: ListenableBuilder(
+        builder: (context, _) {
+          return Text(
+            content,
+            maxLines: expanded.value ? 9999 : maxLines,
+            overflow: TextOverflow.fade,
+          );
+        },
+        listenable: expanded,
+      ),
+    );
+  }
+}
+
 /// 回复块
 class SimpleReplyCard extends StatelessWidget {
   ///最外层的reply
   final Reply reply;
+  final VoidCallback? onTap;
 
-  const SimpleReplyCard({super.key, required this.reply});
+  const SimpleReplyCard({super.key, required this.reply, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context);
 
     return GestureDetector(
-      onTap: () => {
-        showModalBottomSheet(
-            context: context,
-            builder: (context) => FlutterLogo())
-      },
+      onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(myTheme?.paddingDefault ?? 0),
         decoration: BoxDecoration(

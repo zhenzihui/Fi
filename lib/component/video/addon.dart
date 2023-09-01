@@ -50,9 +50,9 @@ class OwnerInfo extends StatelessWidget {
 
 //视频下面的详情
 class VideoAddonInfo2 extends StatelessWidget {
-  final VideoDetail baseVideo;
+  final VideoDetail data;
 
-  const VideoAddonInfo2({super.key, required this.baseVideo});
+  const VideoAddonInfo2({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -61,29 +61,26 @@ class VideoAddonInfo2 extends StatelessWidget {
       padding: EdgeInsets.only(
           left: myTheme?.paddingDefault ?? 0,
           right: myTheme?.paddingDefault ?? 0),
-      child: ApiBuilder(
-        BClient.getVideoDetail(baseVideo.bvId),
-        builder: (context, data) => Column(
-          children: [
-            OwnerInfo(owner: baseVideo.owner),
-            VideoDesc(
-              theme: myTheme,
-              data: data,
+      child: Column(
+        children: [
+          OwnerInfo(owner: data.owner),
+          VideoDesc(
+            theme: myTheme,
+            data: data,
+          ),
+          SizedBox(
+            height: SU.rpx(20),
+          ),
+          VideoOptionRow(
+            stat: data.stat,
+          ),
+          Divider(),
+          Expanded(
+            child: VideoRelatedList(
+              bvId: data.bvId,
             ),
-            SizedBox(
-              height: SU.rpx(20),
-            ),
-            VideoOptionRow(
-              stat: data.stat,
-            ),
-            Divider(),
-            Expanded(
-              child: VideoRelatedList(
-                bvId: data.bvId,
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

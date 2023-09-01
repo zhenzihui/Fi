@@ -66,7 +66,7 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
                       maxWidth: MediaQuery.sizeOf(context).width,
                     ));
               }),
-          SliverFillRemaining(child: VideoInfoPage(detail: data))
+          SliverFillRemaining(child: VideoInfoPage(data: data))
         ],
       ),
     );

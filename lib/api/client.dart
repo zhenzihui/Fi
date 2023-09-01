@@ -85,19 +85,19 @@ class LoggerInterceptor extends InterceptorsWrapper {
     var curl = '';
 
     // Add PATH + REQUEST_METHOD
-    curl += 'curl --request ${requestOption.method} ${requestOption.uri}';
+    curl += "curl --request ${requestOption.method} '${requestOption.uri}'";
 
     // Include headers
     for (var key in requestOption.headers.keys) {
-      curl += ' -H $key: ${requestOption.headers[key]}';
+      curl += " -H $key: '${requestOption.headers[key]}";
     }
 
     // Include data if there is data
     if (requestOption.data != null) {
       if (requestOption.data is Map || requestOption.data is List) {
-        curl += ' -d ${jsonEncode(requestOption.data)}';
+        curl += " -d '${jsonEncode(requestOption.data)}'";
       } else {
-        curl += ' -d ${requestOption.data}';
+        curl += " -d '${requestOption.data}'";
       }
     }
 
@@ -246,6 +246,15 @@ class BClient {
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
         compute((message) => message, CommentListResp.fromJson(value)));
+  }
+
+  ///获取稿件的评论的回复
+  static Future<ReplyListResp> getReplies(GetReplyListReq req) {
+    return _dio
+        .get(ApiComment.getReplies.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) =>
+        compute((message) => message, ReplyListResp.fromJson(value)));
   }
 
 

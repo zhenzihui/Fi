@@ -17,6 +17,24 @@ class CommentListResp {
   }
 }
 
+///评论的回复 responseBody.data
+class ReplyListResp {
+  List<Reply>? _replies;
+  Reply? root;
+  //up主信息
+  Member? upper;
+
+  List<Reply> get replies => _replies ?? [];
+
+  ReplyListResp.fromJson(Map<String, dynamic> raw) {
+    _replies =
+        JsonUtil<Reply>().toList(raw['replies'], (res) => Reply.fromJson(res));
+    upper =
+        JsonUtil<Member>().parse(raw['upper'], (res) => Member.fromJson(res));
+    root = JsonUtil<Reply>().parse(raw['root'], (res) => Reply.fromJson(res));
+  }
+}
+
 /// 评论回复
 class Reply {
   int? rpId;
@@ -35,7 +53,7 @@ class Reply {
 
   Reply.fromJson(Map<String, dynamic> raw) {
     rpId = raw['rpid'];
-    oId = raw['oId'];
+    oId = raw['oid'];
     _like = raw['like'];
     member =
         JsonUtil<Member>().parse(raw['member'], (res) => Member.fromJson(res));

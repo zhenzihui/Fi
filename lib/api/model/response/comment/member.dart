@@ -16,7 +16,7 @@ class Member {
       {this.mId, this.uName, this.sex, this.sign, this.avatar, this.pendant});
 
   Member.fromJson(Map<String, dynamic> raw) {
-    mId = raw['mid'];
+    mId = "${raw['mid']}";
     uName = raw['uname'];
     sex = raw['sex'];
     sign = raw['sign'];

@@ -90,10 +90,13 @@ enum ApiVideo{
 ///评论相关接口
 enum ApiComment{
 
-  /// test: BV16X4y1x7q6
   getComments(
       api: "${HostInfo.api}/x/v2/reply/main",
-      desc: "视频详细信息",
+      desc: "获取稿件评论",
+  ),
+  getReplies(
+      api: "${HostInfo.api}/x/v2/reply/reply",
+      desc: "获取评论的回复",
   ),
 
   ;
