@@ -5,6 +5,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:fi/api/api_list.dart';
+import 'package:fi/api/model/protobuf/dm_define.pb.dart';
 import 'package:fi/api/model/request/base.dart';
 import 'package:fi/api/model/request/comment.dart';
 import 'package:fi/api/model/request/login.dart';
@@ -116,7 +117,7 @@ class RequestInterceptor extends Interceptor {
     final clientHeader = {
       'Referer': 'https://www.bilibili.com/',
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
     };
 
     options.headers.addAll(clientHeader);
@@ -150,7 +151,8 @@ class RequestInterceptor extends Interceptor {
 }
 
 class BClient {
-  static final _dio = Dio()..interceptors.addAll(_interceptors);
+  static final _dio = Dio()
+    ..interceptors.addAll(_interceptors);
 
   static final _interceptors = [
     LoggerInterceptor(false),
@@ -188,11 +190,12 @@ class BClient {
   /// 查询推荐
   static Future<List<VideoDetail>> getRecommendedVideos() {
     return _dio
-            .get(ApiHome.getRecommendedVideos.api)
-            .then((value) => _handleJsonResponse(value))
-            .then((data) => VideoDetail.fromJsonList(
-                _handleDataAsList(data, HostInfo.listKeyItem)))
-        // .onError((error, stackTrace) { throw error!; })
+        .get(ApiHome.getRecommendedVideos.api)
+        .then((value) => _handleJsonResponse(value))
+        .then((data) =>
+        VideoDetail.fromJsonList(
+            _handleDataAsList(data, HostInfo.listKeyItem)))
+    // .onError((error, stackTrace) { throw error!; })
         ;
   }
 
@@ -218,7 +221,7 @@ class BClient {
         .get(ApiVideo.getRelated.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
-            compute((message) => message, VideoDetail.fromJsonList(value)));
+        compute((message) => message, VideoDetail.fromJsonList(value)));
   }
 
   ///获取热门视频
@@ -237,6 +240,17 @@ class BClient {
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
         compute((message) => message, ZoneVideoList.fromJson(value)));
+  }
+
+  /// 获取视频弹幕
+  static Future<DmSegMobileReply> getVideoDanmaku(GetDanmakuReq req) async {
+
+    final response = await _dio.get<List<int>>(ApiVideo.getDanmaku.api,
+      queryParameters: req.toJson(),
+      options: Options(responseType: ResponseType.bytes),
+    );
+    final data = await _handleProtobufResponse(response) as List<int>;
+    return DmSegMobileReply.fromBuffer(data);
   }
 
   ///获取稿件的评论
@@ -267,9 +281,13 @@ class BClient {
     final biz = await compute((message) => message,
         BizResponse.fromJson(response.data as Map<String, dynamic>));
     if (biz.code != BizCode.success.code) {
-      final ctx = MyNavObserver.getInstance().navigator?.overlay?.context;
-      if(ctx != null) {
-       return Future(() {
+      final ctx = MyNavObserver
+          .getInstance()
+          .navigator
+          ?.overlay
+          ?.context;
+      if (ctx != null) {
+        return Future(() {
           ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               duration: const Duration(milliseconds: 300),
               content: ErrorPage(message: biz.message)));
@@ -281,7 +299,15 @@ class BClient {
     return biz.data;
   }
 
+  //处理protobuf流
+  static Future<dynamic> _handleProtobufResponse(Response<dynamic> response) async {
+    if (response.statusCode != HttpStatus.ok) {
+      return Future.error(response.toString());
+    }
+    return response.data;
+  }
+
   static List<dynamic> _handleDataAsList(Map<String, dynamic> data,
-          [String keyName = HostInfo.dataKeyItem]) =>
+      [String keyName = HostInfo.dataKeyItem]) =>
       data[keyName] as List<dynamic>;
 }

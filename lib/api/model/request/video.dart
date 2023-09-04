@@ -47,3 +47,32 @@ class ZoneVideoListReq extends PageReq {
 
   ZoneVideoListReq(this.rId, super.page, [super.pageCount]);
 }
+
+/// 获取弹幕请求
+class GetDanmakuReq {
+  //1：视频弹幕
+  // 2：漫画弹幕
+  int type;
+
+  // 视频的cid
+  num oId;
+
+  //弹幕的分包， 6min一包
+  int segmentIndex;
+
+  //第一个弹幕的segindex = 1
+  GetDanmakuReq(
+      {required this.type, required this.oId, this.segmentIndex =1});
+
+  GetDanmakuReq copyWith(int? segmentIndex) {
+    return GetDanmakuReq(
+        segmentIndex: segmentIndex ?? this.segmentIndex, oId: oId, type: type);
+  }
+
+  dynamic toJson() =>
+      {
+        "type": type,
+        "oid": oId,
+        "segment_index": segmentIndex
+      };
+}

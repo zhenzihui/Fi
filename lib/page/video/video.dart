@@ -4,6 +4,7 @@ import 'package:fi/component/api.dart';
 import 'package:fi/component/home.dart';
 import 'package:fi/component/video/addon.dart';
 import 'package:fi/component/comment/comment.dart';
+import 'package:fi/component/video/danmaku.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/comment/comment_detail.dart';
 import 'package:fi/util/page.dart';
@@ -44,6 +45,12 @@ class VideoInfoPage extends StatelessWidget {
                         rpId: rpId,
                         bvId: detail.bvId,
                       ))),
+          Text(
+            "弹幕测试",
+            style: myTheme?.cardTitle,
+            textAlign: TextAlign.center,
+          ): DanmakuTest(cId: detail.cId!,),
+
         });
       }
     );

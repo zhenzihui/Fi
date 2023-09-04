@@ -78,6 +78,11 @@ enum ApiVideo{
     desc: "获取分区最新视频"
   ),
 
+  getDanmaku(
+    api: "${HostInfo.api}/x/v2/dm/list/seg.so",
+    desc: "获取视频的弹幕(protobuf)"
+  )
+
   ;
 
 
