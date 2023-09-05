@@ -25,6 +25,7 @@ class _VideoListState extends State<VideoList> {
   @override
   void initState() {
     super.initState();
+
     _getMore();
 
     _scrollCtr.addListener(() {

@@ -23,10 +23,10 @@ class VideoPlayerPage extends StatefulWidget {
 class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
   late VideoDetail data = widget.data;
 
-  Future<VideoPlayerController> _initPlayer(String cId, String bvId) {
+  Future<VideoPlayerController> _initPlayer(num cId, String bvId) {
     return BClient.getVideoPlayUrl(GetVideoPlayUrlReq(cId: cId, bvId: bvId))
         .then((urlInfo) {
-      return UniPlayerController.initByUrl(urlInfo.urlList[0].url ?? "");
+      return UniPlayerController.initByUrl(urlInfo.urlList[0].url ?? "", cId);
     });
   }
 
@@ -53,7 +53,7 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
       body: CustomScrollView(
         slivers: [
           FutureBuilder(
-              future: _initPlayer(data.cId.toString(), data.bvId),
+              future: _initPlayer(data.cId!, data.bvId),
               builder: (context, snap) {
                 if (snap.connectionState != ConnectionState.done ||
                     !snap.hasData) {
@@ -80,7 +80,7 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   double oldShrink = -1;
 
   PlayerBoxDelegate({
-    required this.maxWidth,
+    required this.maxWidth
   });
 
   @override
@@ -94,8 +94,8 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxWidth / videoController.value.aspectRatio;
 
   @override
-  double get minExtent =>
-      videoController.value.isPlaying ? maxExtent : SU.rpx(200);
+  double get minExtent =>maxExtent;
+      // videoController.value.isPlaying ? maxExtent : SU.rpx(200);
 
   @override
   bool shouldRebuild(covariant PlayerBoxDelegate oldDelegate) {

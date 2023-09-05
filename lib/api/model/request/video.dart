@@ -12,7 +12,7 @@ class GetVideoDetailReq {
 
 ///获取视频播放信息
 class GetVideoPlayUrlReq {
-  final String cId;
+  final num cId;
   final String bvId;
 
   GetVideoPlayUrlReq({required this.cId, required this.bvId});
