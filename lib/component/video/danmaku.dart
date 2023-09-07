@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/protobuf/dm_define.pb.dart';
 import 'package:fi/api/model/request/video.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:math' as math;
+
 class DanmakuTest extends StatelessWidget {
   final num cId;
 
@@ -19,19 +22,20 @@ class DanmakuTest extends StatelessWidget {
     final myTheme = MyThemeWidget.of(context);
     return ApiBuilder(BClient.getVideoDanmaku(getDanmakuReq),
         builder: (context, data) {
-      return ListView.builder(
-        itemBuilder: (ctx, index) {
-          final el = data.elems[index];
+          return ListView.builder(
+            itemBuilder: (ctx, index) {
+              final el = data.elems[index];
 
-          return Text(
-            el.content,
-            style: TextStyle(
-                color: Color(int.parse("0xff${el.color.toRadixString(16)}"))),
+              return Text(
+                el.content,
+                style: TextStyle(
+                    color: Color(
+                        int.parse("0xff${el.color.toRadixString(16)}"))),
+              );
+            },
+            itemCount: data.elems.length,
           );
-        },
-        itemCount: data.elems.length,
-      );
-    });
+        });
   }
 }
 
@@ -39,8 +43,7 @@ class DanmakuTest extends StatelessWidget {
 class DanmakuOverlay extends StatefulWidget {
   final VideoPlayerController playerController;
 
-  const DanmakuOverlay(
-      {super.key, required this.playerController});
+  const DanmakuOverlay({super.key, required this.playerController});
 
   @override
   State<DanmakuOverlay> createState() => _DanmakuOverlayState();
@@ -49,83 +52,53 @@ class DanmakuOverlay extends StatefulWidget {
 class _DanmakuOverlayState extends State<DanmakuOverlay>
     with SingleTickerProviderStateMixin {
   late final _playerCtr = widget.playerController;
-  final double speed = 1;
 
-  //动画持续6分钟，完成后刷新数据
-  late final AnimationController danmakuAnimeCtr =
-      AnimationController(duration: const Duration(minutes: 6), vsync: this);
-
-  late final danmakuTween = Tween(begin: 0.0, end: -100.0);
-
-  late Animation<double> danmakuAnimation =
-      danmakuTween.animate(danmakuAnimeCtr);
-
-  //弹幕之间的gap
-  final double gap = 300;
-
-  int currentPlayProgress = 0;
-
+  late StreamController<DanmakuElem> danmakuStream;
+  List<DanmakuFlyItem> danmakuItemList = List.empty(growable: true);
+  DanmakuItemController allDanmakuController = DanmakuItemController.init(isPlaying: true);
   @override
   void initState() {
     super.initState();
+    if (danmakuItemList.isNotEmpty) {
+      danmakuItemList.removeRange(0, danmakuItemList.length - 1);
+    }
+    UniDanmakuController.initialize(UniPlayerController.currentCId!, 1);
+    danmakuStream = UniDanmakuController.getInstance();
     _playerCtr.addListener(() {
-      currentPlayProgress = _playerCtr.value.position.inMilliseconds;
-      //如果播放暂停了，弹幕动画也暂停
-      if (!_playerCtr.value.isPlaying) {
-        danmakuAnimeCtr.stop();
+      if(!_playerCtr.value.isPlaying) {
+        allDanmakuController.pause();
+      } else {
+        allDanmakuController.play();
       }
-      //如果播放器在播放就播放弹幕动画
-      if (_playerCtr.value.isPlaying) {
-        danmakuAnimeCtr.forward();
-      }
+      UniDanmakuController.download(_playerCtr.value.position);
+      UniDanmakuController.addDanmaku(_playerCtr.value.position);
     });
-    danmakuAnimeCtr.addListener(() {
-      if (danmakuAnimeCtr.isCompleted) {}
-    });
-    // danmakuAnimeCtr.forward();
-  }
-
-  @override
-  void dispose() {
-    danmakuAnimeCtr.dispose();
-    super.dispose();
-  }
-
-  List<DanmakuItem> _buildDanmakuItem(Offset offset, List<DanmakuElem> list) {
-    double originalOffsetX = 0;
-    return list.map((e) {
-      final item = DanmakuItem(
-          initialOffset: Offset(originalOffsetX, 0),
-          offset: offset,
-          id: e.id.toInt(),
-          speedFactor: e.progress > currentPlayProgress? 200 : 0,
-          child: Text(
-            e.content,
-            style: TextStyle(
-                color: Color(int.parse("0xff${e.color.toRadixString(16)}"))),
-          ));
-
-      originalOffsetX += gap;
-      return item;
-    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
-      return ApiBuilder(
-        BClient.getVideoDanmaku(GetDanmakuReq(type: 1, oId: UniPlayerController.currentCId!)),
-        builder: (ctx, data) {
-          return AnimatedBuilder(
-              animation: danmakuAnimation,
-              builder: (context, _) {
-                return Stack(
-                  children: _buildDanmakuItem(
-                      Offset(danmakuAnimation.value, 0), data.elems),
-                );
-              });
-        }
-      );
+      return StreamBuilder(
+          stream: danmakuStream.stream,
+          builder: (ctx, snapshot) {
+            if (snapshot.hasData) {
+              final key = UniqueKey();
+              danmakuItemList.add(DanmakuFlyItem(
+                key: key,
+                danmakuElem: snapshot.data!,
+                maxWidth: constraint.maxWidth,
+                maxHeight: constraint.maxHeight,
+                controller: allDanmakuController,
+                onComplete: () =>
+                    Future(() =>
+                        danmakuItemList
+                            .removeWhere((element) => element.key == key)),
+              ));
+            }
+            return Stack(
+              children: danmakuItemList,
+            );
+          });
     });
   }
 }
@@ -134,36 +107,130 @@ class _DanmakuOverlayState extends State<DanmakuOverlay>
 class DanmakuItem extends StatelessWidget {
   final num id;
   final Widget child;
-  final Offset initialOffset;
-  final double speedFactor;
   final Offset offset;
   final Function(num id)? onOut;
 
   const DanmakuItem({
     super.key,
     required this.child,
-    required this.initialOffset,
     required this.offset,
     required this.id,
-    this.speedFactor = 200,
     this.onOut,
   });
 
-  double get _left {
-    final offsetX = initialOffset.dx + (offset.dx * speedFactor);
-    if (offsetX - 100 < 0) {
-      onOut?.call(id);
-    }
-    return offsetX;
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: offset.dy,
+      right: offset.dx,
+      child: child,
+    );
+  }
+}
+
+//自带动画控制器的弹幕
+class DanmakuFlyItem extends StatefulWidget {
+  const DanmakuFlyItem({super.key,
+    required this.danmakuElem,
+    required this.maxWidth,
+    required this.maxHeight,
+    this.controller,
+    this.onComplete});
+
+  final double maxWidth;
+  final double maxHeight;
+  final DanmakuElem danmakuElem;
+  final VoidCallback? onComplete;
+  final DanmakuItemController? controller;
+
+  @override
+  State<DanmakuFlyItem> createState() => _DanmakuFlyItemState();
+}
+
+class _DanmakuFlyItemState extends State<DanmakuFlyItem>
+    with TickerProviderStateMixin {
+  late final AnimationController danmakuAnimeCtr = AnimationController(
+      duration: Duration(seconds: widget.maxWidth ~/ 24), vsync: this);
+  late final danmakuTween = Tween(begin: .0, end: widget.maxWidth);
+  late Animation<double> danmakuAnimation =
+  danmakuTween.animate(danmakuAnimeCtr);
+  double defaultY = 100;
+
+  @override
+  void initState() {
+    super.initState();
+    defaultY = math.Random().nextDouble() * widget.maxHeight;
+    danmakuAnimeCtr.forward();
+
+    danmakuAnimeCtr.addListener(() {
+      if (danmakuAnimeCtr.isCompleted) {
+        widget.onComplete?.call();
+        dispose();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    danmakuAnimeCtr.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: Listenable.merge([danmakuAnimation, widget.controller]),
+        builder: (context, _) {
+          try{
+            if(widget.controller?.value.isPlaying == false) {
+              danmakuAnimeCtr.stop();
+            } else if(!danmakuAnimeCtr.isAnimating && !danmakuAnimeCtr.isCompleted) {
+              danmakuAnimeCtr.forward();
+            }
+          } catch (e) {
+            debugPrint("already disposed");
+          }
 
-    return Positioned(
-      top: initialOffset.dy + (offset.dy * speedFactor),
-      left: _left,
-      child: child,
-    );
+
+          return _buildDanmakuItem(
+              Offset(danmakuAnimation.value, defaultY), widget.danmakuElem);
+        });
   }
+
+  DanmakuItem _buildDanmakuItem(Offset offset, DanmakuElem e) {
+    final item = DanmakuItem(
+        offset: offset,
+        id: e.id.toInt(),
+        child: Text(
+          e.content,
+          style: TextStyle(
+              color: Color(int.parse("0xff${e.color.toRadixString(16)}"))),
+        ));
+
+    return item;
+  }
+}
+
+class DanmakuItemValues {
+  // final Offset offset;
+  final bool isPlaying;
+
+  DanmakuItemValues copyWith({bool? isPlaying}) =>
+      DanmakuItemValues(
+          isPlaying: isPlaying ?? this.isPlaying);
+
+  DanmakuItemValues({required this.isPlaying});
+}
+
+class DanmakuItemController extends ValueNotifier<DanmakuItemValues> {
+  DanmakuItemController.init({required bool isPlaying}):
+  super(DanmakuItemValues(isPlaying: isPlaying));
+
+  pause() {
+    value = value.copyWith(isPlaying: false);
+  }
+  play() {
+    value = value.copyWith(isPlaying: true);
+  }
+
 }

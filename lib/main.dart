@@ -5,7 +5,6 @@ import 'package:fi/api/model/response/login.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/index/home.dart';
 import 'package:fi/page/route.dart';
-import 'package:fi/page/zone/index.dart';
 import 'package:fi/page/zone/zone_detail.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
@@ -15,7 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BClient.init();
   await AppMetaData.initialize();
-  runApp(const MyApp());
+  Future.delayed(const Duration(seconds: 2), () => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -63,7 +62,9 @@ class MyApp extends StatelessWidget {
             return Text("起到");
 
           default:
-            return CommonZoneDetailPage(tId: arg.tid??0,);
+            return CommonZoneDetailPage(
+              tId: arg.tid ?? 0,
+            );
         }
       default:
         throw 'Route $routeName is not defined';
