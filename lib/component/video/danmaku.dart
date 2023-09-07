@@ -22,20 +22,19 @@ class DanmakuTest extends StatelessWidget {
     final myTheme = MyThemeWidget.of(context);
     return ApiBuilder(BClient.getVideoDanmaku(getDanmakuReq),
         builder: (context, data) {
-          return ListView.builder(
-            itemBuilder: (ctx, index) {
-              final el = data.elems[index];
+      return ListView.builder(
+        itemBuilder: (ctx, index) {
+          final el = data.elems[index];
 
-              return Text(
-                el.content,
-                style: TextStyle(
-                    color: Color(
-                        int.parse("0xff${el.color.toRadixString(16)}"))),
-              );
-            },
-            itemCount: data.elems.length,
+          return Text(
+            el.content,
+            style: TextStyle(
+                color: Color(int.parse("0xff${el.color.toRadixString(16)}"))),
           );
-        });
+        },
+        itemCount: data.elems.length,
+      );
+    });
   }
 }
 
@@ -55,7 +54,8 @@ class _DanmakuOverlayState extends State<DanmakuOverlay>
 
   late StreamController<DanmakuElem> danmakuStream;
   List<DanmakuFlyItem> danmakuItemList = List.empty(growable: true);
-  DanmakuItemController allDanmakuController = DanmakuItemController.init(isPlaying: true);
+  DanmakuItemController? allDanmakuController;
+
   @override
   void initState() {
     super.initState();
@@ -65,10 +65,10 @@ class _DanmakuOverlayState extends State<DanmakuOverlay>
     UniDanmakuController.initialize(UniPlayerController.currentCId!, 1);
     danmakuStream = UniDanmakuController.getInstance();
     _playerCtr.addListener(() {
-      if(!_playerCtr.value.isPlaying) {
-        allDanmakuController.pause();
+      if (!_playerCtr.value.isPlaying) {
+        allDanmakuController?.pause();
       } else {
-        allDanmakuController.play();
+        allDanmakuController?.play();
       }
       UniDanmakuController.download(_playerCtr.value.position);
       UniDanmakuController.addDanmaku(_playerCtr.value.position);
@@ -78,6 +78,9 @@ class _DanmakuOverlayState extends State<DanmakuOverlay>
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraint) {
+      allDanmakuController = DanmakuItemController.init(
+          isPlaying: true,
+          maxOffset: Offset(constraint.maxWidth, constraint.maxHeight));
       return StreamBuilder(
           stream: danmakuStream.stream,
           builder: (ctx, snapshot) {
@@ -86,13 +89,9 @@ class _DanmakuOverlayState extends State<DanmakuOverlay>
               danmakuItemList.add(DanmakuFlyItem(
                 key: key,
                 danmakuElem: snapshot.data!,
-                maxWidth: constraint.maxWidth,
-                maxHeight: constraint.maxHeight,
                 controller: allDanmakuController,
-                onComplete: () =>
-                    Future(() =>
-                        danmakuItemList
-                            .removeWhere((element) => element.key == key)),
+                onComplete: () => Future(() => danmakuItemList
+                    .removeWhere((element) => element.key == key)),
               ));
             }
             return Stack(
@@ -130,15 +129,13 @@ class DanmakuItem extends StatelessWidget {
 
 //自带动画控制器的弹幕
 class DanmakuFlyItem extends StatefulWidget {
-  const DanmakuFlyItem({super.key,
-    required this.danmakuElem,
-    required this.maxWidth,
-    required this.maxHeight,
+  const DanmakuFlyItem({
+    super.key,
     this.controller,
-    this.onComplete});
+    required this.danmakuElem,
+    this.onComplete,
+  });
 
-  final double maxWidth;
-  final double maxHeight;
   final DanmakuElem danmakuElem;
   final VoidCallback? onComplete;
   final DanmakuItemController? controller;
@@ -149,17 +146,20 @@ class DanmakuFlyItem extends StatefulWidget {
 
 class _DanmakuFlyItemState extends State<DanmakuFlyItem>
     with TickerProviderStateMixin {
+  late final width = widget.controller?.value.maxOffset.dx ?? 0;
+  late final height = widget.controller?.value.maxOffset.dy ?? 0;
+
   late final AnimationController danmakuAnimeCtr = AnimationController(
-      duration: Duration(seconds: widget.maxWidth ~/ 24), vsync: this);
-  late final danmakuTween = Tween(begin: .0, end: widget.maxWidth);
+      duration: Duration(seconds: width ~/ 24), vsync: this);
+  late final danmakuTween = Tween(begin: .0, end: width);
   late Animation<double> danmakuAnimation =
-  danmakuTween.animate(danmakuAnimeCtr);
+      danmakuTween.animate(danmakuAnimeCtr);
   double defaultY = 100;
 
   @override
   void initState() {
     super.initState();
-    defaultY = math.Random().nextDouble() * widget.maxHeight;
+    defaultY = math.Random().nextDouble() * height;
     danmakuAnimeCtr.forward();
 
     danmakuAnimeCtr.addListener(() {
@@ -181,16 +181,16 @@ class _DanmakuFlyItemState extends State<DanmakuFlyItem>
     return AnimatedBuilder(
         animation: Listenable.merge([danmakuAnimation, widget.controller]),
         builder: (context, _) {
-          try{
-            if(widget.controller?.value.isPlaying == false) {
+          try {
+            if (widget.controller?.value.isPlaying == false) {
               danmakuAnimeCtr.stop();
-            } else if(!danmakuAnimeCtr.isAnimating && !danmakuAnimeCtr.isCompleted) {
+            } else if (!danmakuAnimeCtr.isAnimating &&
+                !danmakuAnimeCtr.isCompleted) {
               danmakuAnimeCtr.forward();
             }
           } catch (e) {
             debugPrint("already disposed");
           }
-
 
           return _buildDanmakuItem(
               Offset(danmakuAnimation.value, defaultY), widget.danmakuElem);
@@ -214,23 +214,38 @@ class _DanmakuFlyItemState extends State<DanmakuFlyItem>
 class DanmakuItemValues {
   // final Offset offset;
   final bool isPlaying;
+  final Offset maxOffset;
+  final VoidCallback? onComplete;
 
-  DanmakuItemValues copyWith({bool? isPlaying}) =>
+  DanmakuItemValues copyWith(
+          {bool? isPlaying,
+          Offset? maxOffset,
+          VoidCallback? onComplete,
+          DanmakuElem? danmakuElem}) =>
       DanmakuItemValues(
-          isPlaying: isPlaying ?? this.isPlaying);
+        isPlaying: isPlaying ?? this.isPlaying,
+        maxOffset: maxOffset ?? this.maxOffset,
+        onComplete: onComplete ?? this.onComplete,
+      );
 
-  DanmakuItemValues({required this.isPlaying});
+  DanmakuItemValues(
+      {required this.isPlaying, required this.maxOffset, this.onComplete});
 }
 
 class DanmakuItemController extends ValueNotifier<DanmakuItemValues> {
-  DanmakuItemController.init({required bool isPlaying}):
-  super(DanmakuItemValues(isPlaying: isPlaying));
+  DanmakuItemController.init({
+    required bool isPlaying,
+    required Offset maxOffset,
+  }) : super(DanmakuItemValues(
+          isPlaying: isPlaying,
+          maxOffset: maxOffset,
+        ));
 
   pause() {
     value = value.copyWith(isPlaying: false);
   }
+
   play() {
     value = value.copyWith(isPlaying: true);
   }
-
 }
