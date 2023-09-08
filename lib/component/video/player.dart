@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:math' as math;
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/protobuf/dm_define.pb.dart';
 import 'package:fi/api/model/request/video.dart';
@@ -9,6 +9,7 @@ import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:fi/util/player.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
@@ -17,8 +18,18 @@ class BVideoPlayerController2 extends StatelessWidget {
   //被sliver header压缩的值
   final double shrink;
 
-  const BVideoPlayerController2(
-      {super.key, this.shrink = 0});
+  const BVideoPlayerController2({super.key, this.shrink = 0});
+
+  Duration _getSeekPosByDrag(
+      VideoPlayerController controller, double dragPercent) {
+    final int plusPos =
+        (controller.value.duration.inMilliseconds * dragPercent).round();
+    final int newPosition = controller.value.position.inMilliseconds + plusPos;
+    int seekPos = math.max(0, newPosition);
+    seekPos = math.min(controller.value.duration.inMilliseconds, seekPos);
+    final seekTo = Duration(milliseconds: seekPos);
+    return seekTo;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +42,9 @@ class BVideoPlayerController2 extends StatelessWidget {
 
     Timer? hideTimer;
 
-    handleProgress() =>
-        controller.position.then((value) =>
-        progress.value =
-            (value?.inMilliseconds ?? 0.0) /
-                controller.value.duration.inMilliseconds);
+    handleProgress() => controller.position.then((value) => progress.value =
+        (value?.inMilliseconds ?? 0.0) /
+            controller.value.duration.inMilliseconds);
     handleAutoHide() {
       if (controller.value.isPlaying &&
           widgetVisibility.value &&
@@ -52,15 +61,44 @@ class BVideoPlayerController2 extends StatelessWidget {
       handleAutoHide();
     });
 
+    ///拖动变量
+    double dragPos = 0;
+    final seekDragPos = ValueNotifier(0);
+
+    ///---拖动变量
+
     return LayoutBuilder(builder: (context, constraint) {
+      final width = constraint.maxWidth;
       return GestureDetector(
-        onVerticalDragUpdate: (detail) => {},
         //双击暂停/播放
         onDoubleTap: () =>
-        controller.value.isPlaying ? controller.pause() : controller.play(),
+            controller.value.isPlaying ? controller.pause() : controller.play(),
         onTap: () {
           widgetVisibility.value = !widgetVisibility.value;
         },
+        //拖动开始
+        onHorizontalDragStart: (detail) {
+          dragPos = 0;
+        },
+        //拖动更新
+        onHorizontalDragUpdate: (detail) {
+          // debugPrint("drag update: ${detail.delta}");
+
+          dragPos = dragPos + detail.delta.dx;
+          // debugPrint("drag pos: ${dragPos}");
+          // debugPrint("constraint pos: ${constraint.maxWidth}");
+        },
+        onHorizontalDragEnd: (detail) {
+          //拖动距离相对宽度百分比
+          final dragPercent = dragPos / width;
+          Future(() {
+            final seekPos = _getSeekPosByDrag(controller, dragPercent);
+            controller.seekTo(seekPos);
+            // seekDragPos.value = seekPos.inSeconds;
+            // UniDanmakuController.clear();
+          });
+        },
+        // onHorizontalDragCancel: () => debugPrint("drag cancel"),
 
         child: Container(
           color: Colors.black,
@@ -81,10 +119,10 @@ class BVideoPlayerController2 extends StatelessWidget {
                       return Container(
                         decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [Colors.black87, Colors.transparent],
-                            )),
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.black87, Colors.transparent],
+                        )),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -113,32 +151,28 @@ class BVideoPlayerController2 extends StatelessWidget {
                     right: 0,
                     child: widgetVisibility.value
                         ? Container(
-                      decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [Colors.black87, Colors.transparent],
-                          )),
-                      child: ProgressController(
-                        controller: controller,
-                      ),
-                    )
+                            decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [Colors.black87, Colors.transparent],
+                            )),
+                            child: ProgressController(
+                              controller: controller,
+                            ),
+                          )
                         : ProgressBar(
-                      progress: progress,
-                      width: MediaQuery
-                          .sizeOf(context)
-                          .width,
-                    ));
+                            progress: progress,
+                            width: MediaQuery.sizeOf(context).width,
+                          ));
               },
               listenable: widgetVisibility,
             ),
 
             ///弹幕显示器
-            DanmakuOverlay(
-              playerController: controller,
-            )
-          ]),)
-        ,
+            const DanmakuOverlay()
+          ]),
+        ),
       );
     });
   }
@@ -154,15 +188,10 @@ class ProgressController extends StatelessWidget {
   IconData get playIconData => isPlaying ? Icons.pause : Icons.play_arrow;
 
   _formatTime(Duration duration) =>
-      duration
-          .toString()
-          .split('.')
-          .first
-          .padLeft(8, "0");
+      duration.toString().split('.').first.padLeft(8, "0");
 
   //获取最终的播放按钮
-  Widget get playerIcon =>
-      GestureDetector(
+  Widget get playerIcon => GestureDetector(
         onTap: _handleTapPlay,
         child: ListenableBuilder(
           builder: (context, _) {
@@ -204,8 +233,7 @@ class ProgressController extends StatelessWidget {
                   });
 
                   return Text(
-                    "${_formatTime(data)}/${_formatTime(
-                        controller.value.duration)}",
+                    "${_formatTime(data)}/${_formatTime(controller.value.duration)}",
                     style: myTheme?.videoWidgetText,
                   );
                 },
@@ -232,9 +260,7 @@ class ProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final myTheme = MyThemeWidget.of(context)!;
 
-    final totalWidth = width ?? MediaQuery
-        .sizeOf(context)
-        .width / 3;
+    final totalWidth = width ?? MediaQuery.sizeOf(context).width / 3;
     return SizedBox(
       height: SU.rpx(5),
       width: totalWidth,
@@ -250,9 +276,7 @@ class ProgressBar extends StatelessWidget {
                 return Container(
                   width: totalWidth * progress.value,
                   decoration: BoxDecoration(
-                      color: Theme
-                          .of(context)
-                          .primaryColor,
+                      color: Theme.of(context).primaryColor,
                       borderRadius: myTheme.smallBorderRadius),
                 );
               })

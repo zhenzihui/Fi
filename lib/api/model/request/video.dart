@@ -60,6 +60,8 @@ class GetDanmakuReq {
   //弹幕的分包， 6min一包
   int segmentIndex;
 
+  String get key => "${oId}_$segmentIndex";
+
   //第一个弹幕的segindex = 1
   GetDanmakuReq(
       {required this.type, required this.oId, this.segmentIndex =1});

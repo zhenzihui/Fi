@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/protobuf/dm_define.pb.dart';
 import 'package:fi/api/model/request/video.dart';
+import 'package:flutter/foundation.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:math' as math;
 
@@ -44,6 +45,7 @@ class UniDanmakuController {
 
   //弹幕总量库
   static final List<DanmakuElem> _danmakuList = List.empty(growable: true);
+  static final Map<String, List<DanmakuElem>> danmakuCache = {};
 
   // 弹幕当前的下载单位 （下载从1开始）
   static int _segIndex = -1;
@@ -51,10 +53,12 @@ class UniDanmakuController {
   //下载弹幕的时间单位
   static const Duration _segmentPeriod = Duration(minutes: 6);
 
+  static clear() => _danmakuList.clear();
+
   static dispose() {
     _segIndex = -1;
     _danmakuStream?.close();
-    _danmakuList.removeRange(0, _danmakuList.length - 1);
+    _danmakuList.clear();
     _danmakuStream = null;
   }
 
@@ -80,9 +84,16 @@ class UniDanmakuController {
 
   static addDanmaku(Duration progress) {
     for (final e in _danmakuList) {
-      if (e.progress <= progress.inMilliseconds) {
-        _danmakuStream?.add(e);
-        Future(() => _danmakuList.remove(e));
+      if (e.progress <= progress.inMilliseconds &&
+          e.progress >=
+              Duration(
+                      milliseconds: progress.inSeconds -
+                          const Duration(seconds: 10).inSeconds)
+                  .inMilliseconds) {
+        Future(() {
+          _danmakuList.remove(e);
+          _danmakuStream?.add(e);
+        });
       }
     }
   }

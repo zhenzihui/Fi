@@ -40,9 +40,8 @@ class DanmakuTest extends StatelessWidget {
 
 /// 弹幕最外层
 class DanmakuOverlay extends StatefulWidget {
-  final VideoPlayerController playerController;
 
-  const DanmakuOverlay({super.key, required this.playerController});
+  const DanmakuOverlay({super.key});
 
   @override
   State<DanmakuOverlay> createState() => _DanmakuOverlayState();
@@ -50,7 +49,7 @@ class DanmakuOverlay extends StatefulWidget {
 
 class _DanmakuOverlayState extends State<DanmakuOverlay>
     with SingleTickerProviderStateMixin {
-  late final _playerCtr = widget.playerController;
+  late final _playerCtr = UniPlayerController.getInstance();
 
   late StreamController<DanmakuElem> danmakuStream;
   List<DanmakuFlyItem> danmakuItemList = List.empty(growable: true);
@@ -64,15 +63,32 @@ class _DanmakuOverlayState extends State<DanmakuOverlay>
     }
     UniDanmakuController.initialize(UniPlayerController.currentCId!, 1);
     danmakuStream = UniDanmakuController.getInstance();
+
+    int previousSec = 0;
     _playerCtr.addListener(() {
       if (!_playerCtr.value.isPlaying) {
         allDanmakuController?.pause();
       } else {
         allDanmakuController?.play();
       }
-      UniDanmakuController.download(_playerCtr.value.position);
-      UniDanmakuController.addDanmaku(_playerCtr.value.position);
+      // Future(() {
+      if((_playerCtr.value.position.inSeconds - previousSec).abs() > 1) {
+        UniDanmakuController.download(_playerCtr.value.position);
+        UniDanmakuController.addDanmaku(_playerCtr.value.position);
+        previousSec = _playerCtr.value.position.inSeconds;
+      }
+
+      // });
     });
+  }
+
+  @override
+  void dispose() {
+    if (danmakuItemList.isNotEmpty) {
+      danmakuItemList.removeRange(0, danmakuItemList.length - 1);
+    }
+    UniDanmakuController.dispose();
+    super.dispose();
   }
 
   @override
@@ -190,6 +206,7 @@ class _DanmakuFlyItemState extends State<DanmakuFlyItem>
             }
           } catch (e) {
             debugPrint("already disposed");
+            return Container();
           }
 
           return _buildDanmakuItem(
@@ -211,6 +228,7 @@ class _DanmakuFlyItemState extends State<DanmakuFlyItem>
   }
 }
 
+//弹幕控制器的值
 class DanmakuItemValues {
   // final Offset offset;
   final bool isPlaying;
@@ -232,6 +250,7 @@ class DanmakuItemValues {
       {required this.isPlaying, required this.maxOffset, this.onComplete});
 }
 
+//弹幕控制器
 class DanmakuItemController extends ValueNotifier<DanmakuItemValues> {
   DanmakuItemController.init({
     required bool isPlaying,

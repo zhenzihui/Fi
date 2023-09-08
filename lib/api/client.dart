@@ -16,6 +16,7 @@ import 'package:fi/api/model/response/login.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/page/index/home.dart';
 import 'package:fi/util/page.dart';
+import 'package:fi/util/player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -117,7 +118,7 @@ class RequestInterceptor extends Interceptor {
     final clientHeader = {
       'Referer': 'https://www.bilibili.com/',
       'user-agent':
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
     };
 
     options.headers.addAll(clientHeader);
@@ -151,8 +152,7 @@ class RequestInterceptor extends Interceptor {
 }
 
 class BClient {
-  static final _dio = Dio()
-    ..interceptors.addAll(_interceptors);
+  static final _dio = Dio()..interceptors.addAll(_interceptors);
 
   static final _interceptors = [
     LoggerInterceptor(false),
@@ -190,12 +190,11 @@ class BClient {
   /// 查询推荐
   static Future<List<VideoDetail>> getRecommendedVideos() {
     return _dio
-        .get(ApiHome.getRecommendedVideos.api)
-        .then((value) => _handleJsonResponse(value))
-        .then((data) =>
-        VideoDetail.fromJsonList(
-            _handleDataAsList(data, HostInfo.listKeyItem)))
-    // .onError((error, stackTrace) { throw error!; })
+            .get(ApiHome.getRecommendedVideos.api)
+            .then((value) => _handleJsonResponse(value))
+            .then((data) => VideoDetail.fromJsonList(
+                _handleDataAsList(data, HostInfo.listKeyItem)))
+        // .onError((error, stackTrace) { throw error!; })
         ;
   }
 
@@ -221,7 +220,7 @@ class BClient {
         .get(ApiVideo.getRelated.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
-        compute((message) => message, VideoDetail.fromJsonList(value)));
+            compute((message) => message, VideoDetail.fromJsonList(value)));
   }
 
   ///获取热门视频
@@ -230,7 +229,7 @@ class BClient {
         .get(ApiVideo.getPopular.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
-        compute((message) => message, PopularVideoList.fromJson(value)));
+            compute((message) => message, PopularVideoList.fromJson(value)));
   }
 
   ///获取分区视频
@@ -239,18 +238,25 @@ class BClient {
         .get(ApiVideo.getZoneNewestList.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
-        compute((message) => message, ZoneVideoList.fromJson(value)));
+            compute((message) => message, ZoneVideoList.fromJson(value)));
   }
 
   /// 获取视频弹幕
   static Future<DmSegMobileReply> getVideoDanmaku(GetDanmakuReq req) async {
+    final exist = UniDanmakuController.danmakuCache[req.key];
+    if (exist != null) {
+      return DmSegMobileReply(elems: exist);
+    }
 
-    final response = await _dio.get<List<int>>(ApiVideo.getDanmaku.api,
+    final response = await _dio.get<List<int>>(
+      ApiVideo.getDanmaku.api,
       queryParameters: req.toJson(),
       options: Options(responseType: ResponseType.bytes),
     );
     final data = await _handleProtobufResponse(response) as List<int>;
-    return DmSegMobileReply.fromBuffer(data);
+    final danmaku = DmSegMobileReply.fromBuffer(data);
+    UniDanmakuController.danmakuCache.addAll({req.key: danmaku.elems});
+    return danmaku;
   }
 
   ///获取稿件的评论
@@ -259,7 +265,7 @@ class BClient {
         .get(ApiComment.getComments.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
-        compute((message) => message, CommentListResp.fromJson(value)));
+            compute((message) => message, CommentListResp.fromJson(value)));
   }
 
   ///获取稿件的评论的回复
@@ -268,9 +274,8 @@ class BClient {
         .get(ApiComment.getReplies.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) =>
-        compute((message) => message, ReplyListResp.fromJson(value)));
+            compute((message) => message, ReplyListResp.fromJson(value)));
   }
-
 
   /// 以下是内部方法
   /// 判断是否有业务错误， 返回data
@@ -281,11 +286,7 @@ class BClient {
     final biz = await compute((message) => message,
         BizResponse.fromJson(response.data as Map<String, dynamic>));
     if (biz.code != BizCode.success.code) {
-      final ctx = MyNavObserver
-          .getInstance()
-          .navigator
-          ?.overlay
-          ?.context;
+      final ctx = MyNavObserver.getInstance().navigator?.overlay?.context;
       if (ctx != null) {
         return Future(() {
           ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
@@ -300,7 +301,8 @@ class BClient {
   }
 
   //处理protobuf流
-  static Future<dynamic> _handleProtobufResponse(Response<dynamic> response) async {
+  static Future<dynamic> _handleProtobufResponse(
+      Response<dynamic> response) async {
     if (response.statusCode != HttpStatus.ok) {
       return Future.error(response.toString());
     }
@@ -308,6 +310,6 @@ class BClient {
   }
 
   static List<dynamic> _handleDataAsList(Map<String, dynamic> data,
-      [String keyName = HostInfo.dataKeyItem]) =>
+          [String keyName = HostInfo.dataKeyItem]) =>
       data[keyName] as List<dynamic>;
 }
