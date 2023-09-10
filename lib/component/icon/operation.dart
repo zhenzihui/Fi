@@ -37,12 +37,17 @@ class VideoStatIcon extends StatelessWidget {
   final Widget icon;
   final String text;
   final bool landscape;
+  final VoidCallback? onTap;
+  //是否操作过
+  final bool operated;
 
   const VideoStatIcon(
       {super.key,
       required this.icon,
       required this.text,
-      this.landscape = false});
+      this.landscape = false,
+      this.onTap,
+      this.operated = false});
 
   @override
   Widget build(BuildContext context) {
@@ -52,6 +57,7 @@ class VideoStatIcon extends StatelessWidget {
         StUtil.formatNum(text),
       ),
       landscape: landscape,
+      onTap: onTap,
     );
   }
 }

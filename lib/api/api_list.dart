@@ -94,7 +94,6 @@ enum ApiVideo{
 
 ///评论相关接口
 enum ApiComment{
-
   getComments(
       api: "${HostInfo.api}/x/v2/reply/main",
       desc: "获取稿件评论",
@@ -107,7 +106,28 @@ enum ApiComment{
   ;
 
 
-  const ApiComment({required this.api, required this.desc, this.type});
+  const ApiComment({required this.api, required this.desc});
+
+  final String api;
+  final String desc;
+}
+
+
+///操作接口 点赞 收藏 转发
+enum ApiOperation{
+
+  like(
+      api: "${HostInfo.api}/x/web-interface/archive/like",
+      desc: "点赞",
+  ),
+  getHasLike(
+    api: "${HostInfo.api}/x/web-interface/archive/has/like",
+    desc: "视频是否被点赞"
+  )
+  ;
+
+
+  const ApiOperation({required this.api, required this.desc, this.type});
 
   final String api;
   final String desc;

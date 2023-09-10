@@ -1,5 +1,6 @@
 /// string util
 class StUtil {
+  static const blank = "-";
   static String formatNum(String numText) {
     final number = num.tryParse(numText);
     if (number == null) {
@@ -10,6 +11,33 @@ class StUtil {
       return "${inTenTh.toStringAsFixed(1)}万";
     }
     return number.toStringAsFixed(0);
+  }
+
+  static num? toNumberOrNull(String? value) {
+    if(value == null) {
+      return null;
+    }
+    try {
+      return num.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static String numToString(num? value) {
+    if(value == null) {
+      return blank;
+    }
+    return num!.toString();
+  }
+
+  static String plus(String? value, num count) {
+    final raw = toNumberOrNull(value);
+    if(raw == null) {
+      return value??blank;
+    }
+    final res = raw + count;
+    return numToString(res);
   }
 }
 

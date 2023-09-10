@@ -26,6 +26,11 @@ class ApiUtils {
     }
     return sortedMap;
   }
+
+  static String jsonToForm(Map<String, dynamic> raw) {
+    return raw.keys.map((k) => "$k=${raw[k]}")
+        .reduce((p, n) => "$p&$n");
+  }
 }
 
 extension on Map<String, String> {

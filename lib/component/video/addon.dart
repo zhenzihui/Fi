@@ -1,4 +1,5 @@
 import 'package:fi/api/client.dart';
+import 'package:fi/api/model/request/operation.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/api.dart';
@@ -7,6 +8,7 @@ import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/video/player.dart';
 import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
+import 'package:fi/util/util.dart';
 import 'package:flutter/material.dart';
 
 class OwnerInfo extends StatelessWidget {
@@ -73,6 +75,7 @@ class VideoAddonInfo2 extends StatelessWidget {
           ),
           VideoOptionRow(
             stat: data.stat,
+            bvId: data.bvId,
           ),
           Divider(),
           Expanded(
@@ -165,24 +168,40 @@ class VideoDesc extends StatelessWidget {
 /// 视频操作， 点赞 收藏等
 class VideoOptionRow extends StatelessWidget {
   final VideoStat stat;
+  final String bvId;
 
-  const VideoOptionRow({super.key, required this.stat});
+  const VideoOptionRow({
+    super.key,
+    required this.stat,
+    required this.bvId,
+  });
 
   @override
   Widget build(BuildContext context) {
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        VideoStatIcon(
-          landscape: true,
-          icon: Text("👍"),
-          text: stat.like ?? "-",
-        ),
-        const VideoStatIcon(
-          landscape: true,
-          icon: RotatedBox(quarterTurns: 90, child: Text("👍")),
-          text: "不喜欢",
-        ),
+        ApiBuilder(BClient.getLikeStat(GetLikeStatRequest(bvId: bvId)),
+            builder: (context, data) {
+          final liked = ValueNotifier(data == LikeStat.liked.stat);
+          return ListenableBuilder(
+            builder: (context, _) {
+              final isLiked = liked.value;
+              return VideoStatIcon(
+                landscape: true,
+                icon: Text(isLiked ? "赞" : "👍"),
+                operated: isLiked,
+                text: isLiked ? StUtil.plus(stat.like, 1) : stat.like ?? "-",
+                onTap: () => BClient.like(LikeRequest(
+                        like: isLiked ? LikeOpt.cancel : LikeOpt.like,
+                        bvId: bvId))
+                    .then((value) => liked.value = !liked.value),
+              );
+            },
+            listenable: liked,
+          );
+        }),
         VideoStatIcon(
           landscape: true,
           icon: ClipRRect(

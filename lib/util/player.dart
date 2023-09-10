@@ -45,7 +45,6 @@ class UniDanmakuController {
 
   //弹幕总量库
   static final List<DanmakuElem> _danmakuList = List.empty(growable: true);
-  static final Map<String, List<DanmakuElem>> danmakuCache = {};
 
   // 弹幕当前的下载单位 （下载从1开始）
   static int _segIndex = -1;

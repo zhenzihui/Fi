@@ -5,10 +5,12 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:fi/api/api_list.dart';
+import 'package:fi/api/common.dart';
 import 'package:fi/api/model/protobuf/dm_define.pb.dart';
 import 'package:fi/api/model/request/base.dart';
 import 'package:fi/api/model/request/comment.dart';
 import 'package:fi/api/model/request/login.dart';
+import 'package:fi/api/model/request/operation.dart';
 import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/base.dart';
 import 'package:fi/api/model/response/comment/comment.dart';
@@ -58,9 +60,9 @@ class LoggerInterceptor extends InterceptorsWrapper {
           "\n================================= 响应数据开始 =================================");
       debugPrint("uri = ${response.realUri}");
       debugPrint("code = ${response.statusCode}");
-      // if (response.data != null && response.data is Map) {
-      //   debugPrint("data = ${json.encode(response.data)}");
-      // }
+      if (response.data != null && response.data is Map) {
+        debugPrint("data = ${json.encode(response.data)}");
+      }
       debugPrint(
           "================================= 响应数据结束 =================================\n");
       handler.next(response);
@@ -118,14 +120,18 @@ class RequestInterceptor extends Interceptor {
     final clientHeader = {
       'Referer': 'https://www.bilibili.com/',
       'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1'
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
     };
 
     options.headers.addAll(clientHeader);
-    final headerValues = options.headers['cookie'];
-    debugPrint(headerValues.toString());
-    BClient.globalCookie = {'cookie': headerValues.toString()}
-      ..addAll(clientHeader);
+    final String? cookieValues = options.headers['cookie'];
+
+    if(cookieValues != null && CredentialHelper.getInstance() == null) {
+      CredentialHelper.initialize([cookieValues]);
+    }
+
+    BClient.globalCookie = CredentialHelper.getInstance()?.header
+      ?..addAll(clientHeader);
 
     handler.next(options);
   }
@@ -134,17 +140,12 @@ class RequestInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     response.headers.map.forEach((key, value) {
       if (key == "set-cookie") {
-        BClient.globalCookie = value
-            .reduce((p, n) => p + n)
-            .split(";")
-            .where((e) => e.contains("="))
-            .map((pair) => {pair.split("=")[0]: pair.split("=")[1]})
-            .reduce((p, n) => p..addAll(n));
+        CredentialHelper.initialize(value).header;
       }
     });
     //检查code
     if (response.statusCode == 412) {
-      _toPage(LoginPage());
+      _toPage(const LoginPage());
     }
 
     handler.next(response);
@@ -159,7 +160,11 @@ class BClient {
     RequestInterceptor(),
   ];
 
+  /// 给其他地方用的cookie
   static Map<String, String>? globalCookie;
+
+  /// 弹幕的缓存
+  static final Map<String, List<DanmakuElem>> danmakuCache = {};
 
   static Future<void> init() async {
     final cookieInterceptor = await getApplicationSupportDirectory();
@@ -172,7 +177,7 @@ class BClient {
   /// 生成登陆二维码
   static Future<GenQrCodeResp> generateQrCode() {
     return _dio
-        .get(ApiAuth.genQRCode.api)
+        .get(ApiAuth.genQRCode.api, queryParameters: {'source': 'main-fe-header'})
         .then((value) => _handleJsonResponse(value))
         .then((data) => GenQrCodeResp.fromJson(data));
   }
@@ -243,7 +248,7 @@ class BClient {
 
   /// 获取视频弹幕
   static Future<DmSegMobileReply> getVideoDanmaku(GetDanmakuReq req) async {
-    final exist = UniDanmakuController.danmakuCache[req.key];
+    final exist = danmakuCache[req.key];
     if (exist != null) {
       return DmSegMobileReply(elems: exist);
     }
@@ -255,7 +260,7 @@ class BClient {
     );
     final data = await _handleProtobufResponse(response) as List<int>;
     final danmaku = DmSegMobileReply.fromBuffer(data);
-    UniDanmakuController.danmakuCache.addAll({req.key: danmaku.elems});
+    danmakuCache.addAll({req.key: danmaku.elems});
     return danmaku;
   }
 
@@ -277,6 +282,23 @@ class BClient {
             compute((message) => message, ReplyListResp.fromJson(value)));
   }
 
+  ///点赞
+  static Future<dynamic> like(LikeRequest req) {
+    return _dio
+        .post(ApiOperation.like.api,
+            data: ApiUtils.jsonToForm(req.toJson()),
+            options: Options(contentType: Headers.formUrlEncodedContentType))
+        .then((value) => _handleJsonResponse(value));
+  }
+
+  static Future<int> getLikeStat(GetLikeStatRequest req) {
+    return _dio
+        .get(ApiOperation.getHasLike.api,
+            queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) => value as int);
+  }
+
   /// 以下是内部方法
   /// 判断是否有业务错误， 返回data
   static Future<dynamic> _handleJsonResponse(Response<dynamic> response) async {
@@ -292,7 +314,9 @@ class BClient {
           ScaffoldMessenger.of(ctx).showSnackBar(SnackBar(
               duration: const Duration(milliseconds: 300),
               content: ErrorPage(message: biz.message)));
-        });
+          // _handleBizError(biz);
+        }).then((value) => Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
+            orElse: () => BizCode.unknown)));
       }
       return Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
           orElse: () => BizCode.unknown));
@@ -300,7 +324,7 @@ class BClient {
     return biz.data;
   }
 
-  //处理protobuf流
+  ///处理protobuf流
   static Future<dynamic> _handleProtobufResponse(
       Response<dynamic> response) async {
     if (response.statusCode != HttpStatus.ok) {
@@ -312,4 +336,14 @@ class BClient {
   static List<dynamic> _handleDataAsList(Map<String, dynamic> data,
           [String keyName = HostInfo.dataKeyItem]) =>
       data[keyName] as List<dynamic>;
+
+  static _handleBizError(BizResponse biz) {
+    if(biz.code == -101) {
+      _toPage(const LoginPage());
+    }
+
+  }
+
+  static _toPage(Widget page) => PU().offTo(page);
+
 }
