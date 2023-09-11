@@ -10,6 +10,7 @@ import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:fi/util/util.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class OwnerInfo extends StatelessWidget {
   final Owner owner;
@@ -73,9 +74,12 @@ class VideoAddonInfo2 extends StatelessWidget {
           SizedBox(
             height: SU.rpx(20),
           ),
-          VideoOptionRow(
-            stat: data.stat,
-            bvId: data.bvId,
+          SizedBox(
+            height: 50,
+            child: VideoOptionRow(
+              stat: data.stat,
+              bvId: data.bvId,
+            ),
           ),
           Divider(),
           Expanded(
@@ -176,52 +180,86 @@ class VideoOptionRow extends StatelessWidget {
     required this.bvId,
   });
 
+  final optAssetsHome = "assets/icon/opt";
+
+  _buildOptIcon(String imageName, bool active) {
+    return SvgPicture.asset(
+      "$optAssetsHome/$imageName.svg",
+      width: 30,
+      colorFilter:
+          active ? null : const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        ApiBuilder(BClient.getLikeStat(GetLikeStatRequest(bvId: bvId)),
+        Expanded(
+          child: ApiBuilder(BClient.getLikeStat(GetOptStatRequest(bvId: bvId)),
+              builder: (context, data) {
+            final liked = ValueNotifier(data == LikeStat.liked.stat);
+            return ListenableBuilder(
+              builder: (context, _) {
+                final isLiked = liked.value;
+                return VideoStatIcon(
+                  landscape: true,
+                  icon: _buildOptIcon("like", isLiked),
+                  operated: isLiked,
+                  text: isLiked ? StUtil.plus(stat.like, 1) : stat.like ?? "-",
+                  onTap: () => BClient.like(LikeRequest(
+                          like: isLiked ? LikeOpt.cancel : LikeOpt.like,
+                          bvId: bvId))
+                      .then((value) => liked.value = !liked.value),
+                );
+              },
+              listenable: liked,
+            );
+          }),
+        ),
+        Expanded(
+          child: ApiBuilder(
+            BClient.getCoinStat(GetOptStatRequest(bvId: bvId)),
             builder: (context, data) {
-          final liked = ValueNotifier(data == LikeStat.liked.stat);
-          return ListenableBuilder(
-            builder: (context, _) {
-              final isLiked = liked.value;
-              return VideoStatIcon(
-                landscape: true,
-                icon: Text(isLiked ? "赞" : "👍"),
-                operated: isLiked,
-                text: isLiked ? StUtil.plus(stat.like, 1) : stat.like ?? "-",
-                onTap: () => BClient.like(LikeRequest(
-                        like: isLiked ? LikeOpt.cancel : LikeOpt.like,
-                        bvId: bvId))
-                    .then((value) => liked.value = !liked.value),
+              final added = ValueNotifier(data.hasAddCoin);
+              return ListenableBuilder(
+                builder: (context, _) {
+                  return VideoStatIcon(
+                    landscape: true,
+                    icon: _buildOptIcon("coin", added.value),
+                    text: stat.coin ?? "-",
+                    onTap: () => BClient.addCoins(AddCoinReq(bvId: bvId, multiply: 1))
+                    .then((value) => added.value = true),
+                  );
+                }, listenable: added,
               );
-            },
-            listenable: liked,
-          );
-        }),
-        VideoStatIcon(
-          landscape: true,
-          icon: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: Container(
-                color: Colors.amber,
-                child: Padding(padding: EdgeInsets.all(1), child: Text("币"))),
+            }
           ),
-          text: stat.coin ?? "-",
         ),
-        VideoStatIcon(
-          landscape: true,
-          icon: Text("⭐"),
-          text: stat.favorite ?? "-",
+        Expanded(
+          child: ApiBuilder(
+            BClient.getFavStat(GetOptStatRequest(bvId: bvId)),
+            builder: (context, data) {
+              final favoured = ValueNotifier(data.hasFavoured);
+              return ListenableBuilder(
+                builder: (context, _) {
+                  return VideoStatIcon(
+                    landscape: true,
+                    icon: _buildOptIcon("fav", favoured.value),
+                    text: stat.favorite ?? "-",
+                  );
+                }, listenable: favoured,
+              );
+            }
+          ),
         ),
-        VideoStatIcon(
-          landscape: true,
-          icon: Text("👏"),
-          text: stat.share ?? "-",
-        ),
+
+        // VideoStatIcon(
+        //   landscape: true,
+        //   icon: Text("👏"),
+        //   text: stat.share ?? "-",
+        // ),
       ],
     );
   }

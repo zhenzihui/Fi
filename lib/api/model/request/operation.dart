@@ -20,7 +20,7 @@ enum LikeStat {
   const LikeStat(this.stat);
   final int stat;
 }
-//点赞
+///点赞
 class LikeRequest extends CsrfReq {
   final num? aId;
   final String? bvId;
@@ -41,11 +41,11 @@ class LikeRequest extends CsrfReq {
     return super.toJson()..addAll(data);
   }
 }
-//查询是否点赞
-class GetLikeStatRequest {
+///查询是否点赞收藏投币
+class GetOptStatRequest {
   num? aId;
   String? bvId;
-  GetLikeStatRequest({this.aId, this.bvId});
+  GetOptStatRequest({this.aId, this.bvId});
 
   Map<String, dynamic> toJson() {
     assert(aId!=null|| bvId!=null);
@@ -58,4 +58,31 @@ class GetLikeStatRequest {
     }
     return data;
   }
+}
+
+class AddCoinReq extends CsrfReq {
+  final num? aId;
+  final String? bvId;
+  final int? multiply;
+  final bool? selectLike;
+
+  AddCoinReq({this.aId, this.bvId, this.multiply, this.selectLike});
+
+  @override
+  Map<String, dynamic> toJson() {
+    assert(aId!=null|| bvId!=null);
+    final Map<String, dynamic> data = {};
+
+    if(bvId != null) {
+      data.putIfAbsent("bvid", () => bvId);
+    } else if(aId != null) {
+      data.putIfAbsent("aid", () => aId);
+    }
+
+    data.putIfAbsent("multiply", () => multiply??0);
+    data.putIfAbsent("select_like", () => selectLike==true?1:0);
+
+    return super.toJson()..addAll(data);
+  }
+
 }

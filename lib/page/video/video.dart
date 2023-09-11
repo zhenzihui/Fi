@@ -45,11 +45,11 @@ class VideoInfoPage extends StatelessWidget {
                         rpId: rpId,
                         bvId: detail.bvId,
                       ))),
-          Text(
-            "弹幕测试",
-            style: myTheme?.cardTitle,
-            textAlign: TextAlign.center,
-          ): DanmakuTest(cId: detail.cId!,),
+          // Text(
+          //   "弹幕测试",
+          //   style: myTheme?.cardTitle,
+          //   textAlign: TextAlign.center,
+          // ): DanmakuTest(cId: detail.cId!,),
 
         });
       }

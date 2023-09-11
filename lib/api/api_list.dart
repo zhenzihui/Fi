@@ -4,6 +4,7 @@ class HostInfo {
 
   //登陆
   static const passport = "https://passport.bilibili.com";
+
   //api
   static const api = "https://api.bilibili.com";
 }
@@ -24,6 +25,7 @@ enum BizCode {
   final int code;
   final String desc;
 }
+
 /// 鉴权接口
 enum ApiAuth {
   genQRCode(
@@ -39,6 +41,7 @@ enum ApiAuth {
   final String api;
   final String desc;
 }
+
 /// 主页接口
 enum ApiHome {
   getRecommendedVideos(
@@ -50,41 +53,19 @@ enum ApiHome {
   final String api;
   final String desc;
 }
+
 ///视频相关接口
-enum ApiVideo{
-
+enum ApiVideo {
   /// test: BV16X4y1x7q6
-  getDetail(
-    api: "${HostInfo.api}/x/web-interface/view",
-    desc: "视频详细信息"
-  ),
-  getPlayUrl(
-    api: "${HostInfo.api}/x/player/playurl",
-    desc: "获取播放地址"
-  ),
-
+  getDetail(api: "${HostInfo.api}/x/web-interface/view", desc: "视频详细信息"),
+  getPlayUrl(api: "${HostInfo.api}/x/player/playurl", desc: "获取播放地址"),
   getRelated(
-    api: "${HostInfo.api}/x/web-interface/archive/related",
-    desc: "获取关联视频"
-  ),
-
-  getPopular(
-    api: "${HostInfo.api}/x/web-interface/popular",
-    desc: "获取热门视频"
-  ),
-
+      api: "${HostInfo.api}/x/web-interface/archive/related", desc: "获取关联视频"),
+  getPopular(api: "${HostInfo.api}/x/web-interface/popular", desc: "获取热门视频"),
   getZoneNewestList(
-    api: "${HostInfo.api}/x/web-interface/dynamic/region",
-    desc: "获取分区最新视频"
-  ),
-
+      api: "${HostInfo.api}/x/web-interface/dynamic/region", desc: "获取分区最新视频"),
   getDanmaku(
-    api: "${HostInfo.api}/x/v2/dm/list/seg.so",
-    desc: "获取视频的弹幕(protobuf)"
-  )
-
-  ;
-
+      api: "${HostInfo.api}/x/v2/dm/list/seg.so", desc: "获取视频的弹幕(protobuf)");
 
   const ApiVideo({required this.api, required this.desc});
 
@@ -93,18 +74,16 @@ enum ApiVideo{
 }
 
 ///评论相关接口
-enum ApiComment{
+enum ApiComment {
   getComments(
-      api: "${HostInfo.api}/x/v2/reply/main",
-      desc: "获取稿件评论",
+    api: "${HostInfo.api}/x/v2/reply/main",
+    desc: "获取稿件评论",
   ),
   getReplies(
-      api: "${HostInfo.api}/x/v2/reply/reply",
-      desc: "获取评论的回复",
+    api: "${HostInfo.api}/x/v2/reply/reply",
+    desc: "获取评论的回复",
   ),
-
   ;
-
 
   const ApiComment({required this.api, required this.desc});
 
@@ -112,20 +91,22 @@ enum ApiComment{
   final String desc;
 }
 
-
 ///操作接口 点赞 收藏 转发
-enum ApiOperation{
-
+enum ApiOperation {
   like(
-      api: "${HostInfo.api}/x/web-interface/archive/like",
-      desc: "点赞",
+    api: "${HostInfo.api}/x/web-interface/archive/like",
+    desc: "点赞",
   ),
   getHasLike(
-    api: "${HostInfo.api}/x/web-interface/archive/has/like",
-    desc: "视频是否被点赞"
-  )
-  ;
+      api: "${HostInfo.api}/x/web-interface/archive/has/like", desc: "视频是否被点赞"),
 
+  addCoins(api: "${HostInfo.api}/x/web-interface/coin/add", desc: "投币"),
+
+  getHasAddCoins(
+      api: "${HostInfo.api}/x/web-interface/archive/coins", desc: "视频是否被投币"),
+
+  getHasFavoured(
+      api: "${HostInfo.api}/x/v2/fav/video/favoured", desc: "判断视频是否被收藏");
 
   const ApiOperation({required this.api, required this.desc, this.type});
 
@@ -133,5 +114,3 @@ enum ApiOperation{
   final String desc;
   final String? type;
 }
-
-

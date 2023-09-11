@@ -28,7 +28,7 @@ class StUtil {
     if(value == null) {
       return blank;
     }
-    return num!.toString();
+    return "$value";
   }
 
   static String plus(String? value, num count) {

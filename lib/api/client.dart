@@ -15,6 +15,7 @@ import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/base.dart';
 import 'package:fi/api/model/response/comment/comment.dart';
 import 'package:fi/api/model/response/login.dart';
+import 'package:fi/api/model/response/operation.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/page/index/home.dart';
 import 'package:fi/util/page.dart';
@@ -126,7 +127,7 @@ class RequestInterceptor extends Interceptor {
     options.headers.addAll(clientHeader);
     final String? cookieValues = options.headers['cookie'];
 
-    if(cookieValues != null && CredentialHelper.getInstance() == null) {
+    if (cookieValues != null && CredentialHelper.getInstance() == null) {
       CredentialHelper.initialize([cookieValues]);
     }
 
@@ -177,7 +178,8 @@ class BClient {
   /// 生成登陆二维码
   static Future<GenQrCodeResp> generateQrCode() {
     return _dio
-        .get(ApiAuth.genQRCode.api, queryParameters: {'source': 'main-fe-header'})
+        .get(ApiAuth.genQRCode.api,
+            queryParameters: {'source': 'main-fe-header'})
         .then((value) => _handleJsonResponse(value))
         .then((data) => GenQrCodeResp.fromJson(data));
   }
@@ -291,12 +293,38 @@ class BClient {
         .then((value) => _handleJsonResponse(value));
   }
 
-  static Future<int> getLikeStat(GetLikeStatRequest req) {
+  ///投币
+  static Future<dynamic> addCoins(AddCoinReq req) {
     return _dio
-        .get(ApiOperation.getHasLike.api,
-            queryParameters: req.toJson())
+        .post(ApiOperation.addCoins.api,
+        data: ApiUtils.jsonToForm(req.toJson()),
+        options: Options(contentType: Headers.formUrlEncodedContentType))
+        .then((value) => _handleJsonResponse(value))
+    ;
+  }
+  
+  ///查询是否点赞
+  static Future<int> getLikeStat(GetOptStatRequest req) {
+    return _dio
+        .get(ApiOperation.getHasLike.api, queryParameters: req.toJson())
         .then((value) => _handleJsonResponse(value))
         .then((value) => value as int);
+  }
+
+  ///查询是否投币
+  static Future<GetCoinStatResp> getCoinStat(GetOptStatRequest req) {
+    return _dio
+        .get(ApiOperation.getHasAddCoins.api, queryParameters: req.toJson())
+        .then((value) => _handleJsonResponse(value))
+        .then((value) => GetCoinStatResp.fromJson(value));
+  }
+
+  ///查询是否收藏
+  static Future<GetHasFavouredResp> getFavStat(GetOptStatRequest req) {
+    return _dio
+        .get(ApiOperation.getHasFavoured.api, queryParameters: {"aid" : req.bvId??req.aId})
+        .then((value) => _handleJsonResponse(value))
+        .then((value) => GetHasFavouredResp.fromJson(value));
   }
 
   /// 以下是内部方法
@@ -315,7 +343,8 @@ class BClient {
               duration: const Duration(milliseconds: 300),
               content: ErrorPage(message: biz.message)));
           // _handleBizError(biz);
-        }).then((value) => Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
+        }).then((value) => Future.error(BizCode.values.firstWhere(
+            (v) => v.code == biz.code,
             orElse: () => BizCode.unknown)));
       }
       return Future.error(BizCode.values.firstWhere((v) => v.code == biz.code,
@@ -338,12 +367,10 @@ class BClient {
       data[keyName] as List<dynamic>;
 
   static _handleBizError(BizResponse biz) {
-    if(biz.code == -101) {
+    if (biz.code == -101) {
       _toPage(const LoginPage());
     }
-
   }
 
   static _toPage(Widget page) => PU().offTo(page);
-
 }
