@@ -42,6 +42,8 @@ class BVideoPlayerController2 extends StatelessWidget {
 
     Timer? hideTimer;
 
+    controller.play();
+
     handleProgress() => controller.position.then((value) => progress.value =
         (value?.inMilliseconds ?? 0.0) /
             controller.value.duration.inMilliseconds);
@@ -63,7 +65,6 @@ class BVideoPlayerController2 extends StatelessWidget {
 
     ///拖动变量
     double dragPos = 0;
-    final seekDragPos = ValueNotifier(0);
 
     ///---拖动变量
 

@@ -113,7 +113,7 @@ class _VideoListTabViewState extends State<VideoListTabView>
       children: [
         VideoTabBar(tabs: widget.tabs.keys.toList(), controller: _tabCtr),
         Expanded(
-          flex: 9,
+          flex: 7,
           child: TabBarView(
             controller: _tabCtr,
             children: widget.tabs.values.toList(),

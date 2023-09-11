@@ -3,7 +3,6 @@ import 'package:fi/api/model/request/video.dart';
 import 'package:fi/api/model/response/video.dart';
 import 'package:fi/component/video/player.dart';
 import 'package:fi/page/video/video.dart';
-import 'package:fi/util/adaptor.dart';
 import 'package:fi/util/page.dart';
 import 'package:fi/util/player.dart';
 import 'package:flutter/material.dart';
@@ -50,26 +49,25 @@ class _VideoPlayerPageState2 extends State<VideoPlayerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          FutureBuilder(
+        body: Column(
+      children: [
+        Expanded(
+          flex: 3,
+          child: FutureBuilder(
               future: _initPlayer(data.cId!, data.bvId),
               builder: (context, snap) {
                 if (snap.connectionState != ConnectionState.done ||
                     !snap.hasData) {
                   return PU.loading;
                 }
-                return SliverPersistentHeader(
-                    pinned: true,
-                    floating: true,
-                    delegate: PlayerBoxDelegate(
-                      maxWidth: MediaQuery.sizeOf(context).width,
-                    ));
+                return const BVideoPlayerController2();
               }),
-          SliverFillRemaining(child: VideoInfoPage(data: data))
-        ],
-      ),
-    );
+        ),
+        Expanded(
+          flex: 7,
+            child: VideoInfoPage(data: data))
+      ],
+    ));
   }
 }
 
@@ -79,9 +77,7 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
       UniPlayerController.getInstance();
   double oldShrink = -1;
 
-  PlayerBoxDelegate({
-    required this.maxWidth
-  });
+  PlayerBoxDelegate({required this.maxWidth});
 
   @override
   Widget build(
@@ -94,8 +90,9 @@ class PlayerBoxDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => maxWidth / videoController.value.aspectRatio;
 
   @override
-  double get minExtent =>maxExtent;
-      // videoController.value.isPlaying ? maxExtent : SU.rpx(200);
+  double get minExtent => maxExtent;
+
+  // videoController.value.isPlaying ? maxExtent : SU.rpx(200);
 
   @override
   bool shouldRebuild(covariant PlayerBoxDelegate oldDelegate) {
