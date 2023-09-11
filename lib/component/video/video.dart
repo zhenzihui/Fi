@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:fi/api/client.dart';
 import 'package:fi/api/model/response/video.dart';
+import 'package:fi/component/video/addon.dart';
 import 'package:fi/ext/extendable_theme.dart';
 import 'package:fi/page/video/player.dart';
 import 'package:fi/util/adaptor.dart';
@@ -38,8 +39,7 @@ class _VideoListState extends State<VideoList> {
   Future _getMore() {
     return BClient.getRecommendedVideos()
         .then((listData) => listStream.add(listData))
-        .onError((DioException error, stackTrace) {
-    });
+        .onError((DioException error, stackTrace) {});
   }
 
   @override
@@ -55,38 +55,28 @@ class _VideoListState extends State<VideoList> {
     return Container(
       decoration: const BoxDecoration(color: MyThemeWidget.background),
       child: RefreshIndicator.adaptive(
-        onRefresh: () => _getMore(),
-        child: CustomScrollView(
-          controller: _scrollCtr,
-          slivers: [
-            StreamBuilder(
-                stream: listStream.stream,
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<VideoDetail>> snapshot) {
-                  if (snapshot.connectionState != ConnectionState.active) {
-                    return const SliverToBoxAdapter(child: Divider());
-                  }
-                  final resList = cacheList..addAll(snapshot.data ?? []);
-
-                  final childDelegate = SliverChildBuilderDelegate(
-                    (_, index) {
-                      final current = resList[index];
-                      return VideoListItem(
-                        data: current,
-                        onTap: () => PU().to(VideoPlayerPage(data: current)),
-                      );
-                    },
-                    childCount: resList.length,
-                  );
-
-                  return SliverGrid(
-                    delegate: childDelegate,
-                    gridDelegate: delegate,
-                  );
-                })
-          ],
-        ),
-      ),
+          onRefresh: () => _getMore(),
+          child: StreamBuilder(
+              stream: listStream.stream,
+              builder: (BuildContext context,
+                  AsyncSnapshot<List<VideoDetail>> snapshot) {
+                if (snapshot.connectionState != ConnectionState.active) {
+                  return Divider();
+                }
+                final resList = cacheList..addAll(snapshot.data ?? []);
+                return GridView.builder(
+                  controller: _scrollCtr,
+                  gridDelegate: delegate,
+                  itemBuilder: (BuildContext context, int index) {
+                    final current = resList[index];
+                    return VideoListItem(
+                      data: current,
+                      onTap: () => PU().to(VideoPlayerPage(data: current)),
+                    );
+                  },
+                  itemCount: resList.length,
+                );
+              })),
     );
   }
 }
@@ -116,15 +106,24 @@ class VideoListItem extends StatelessWidget {
                 fit: BoxFit.fill,
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                  left: myTheme.paddingDefault, right: myTheme.paddingDefault),
-              child: Text(
-                data.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.start,
-                style: myTheme.categoryTitle,
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                    left: myTheme.paddingDefault, right: myTheme.paddingDefault, bottom: myTheme.paddingDefault),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      data.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.start,
+                      style: myTheme.categoryTitle,
+                    ),
+                    SimpleOwnerInfo(owner: data.owner)
+                  ],
+                ),
               ),
             ),
           ],

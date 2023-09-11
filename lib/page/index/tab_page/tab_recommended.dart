@@ -7,10 +7,7 @@ class RecommendedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: SU.screenWidth,
-        height: SU.screenHeight,
-        child: const VideoList());
+    return const VideoList();
   }
 
 }

@@ -12,6 +12,32 @@ import 'package:fi/util/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+
+class SimpleOwnerInfo extends StatelessWidget {
+  final Owner owner;
+
+  const SimpleOwnerInfo({super.key, required this.owner});
+
+  @override
+  Widget build(BuildContext context) {
+    final myTheme = MyThemeWidget.of(context)!;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        ClipOval(
+          child: Image.network(owner.face, width: 20,),
+        ),
+        SizedBox(width: SU.rpx(10),),
+        Text(
+          owner.name,
+          style: myTheme.ownerNameText,
+        ),
+      ],
+    );
+  }
+}
+
+
 class OwnerInfo extends StatelessWidget {
   final Owner owner;
 
