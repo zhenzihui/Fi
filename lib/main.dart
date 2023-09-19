@@ -14,6 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await BClient.init();
   await AppMetaData.initialize();
+  PU.initialize();
   Future.delayed(const Duration(seconds: 2), () => runApp(const MyApp()));
 }
 
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SU.initialize(context);
-    PU.initialize();
+
 
     return MyThemeWidget(
       child: MaterialApp(
